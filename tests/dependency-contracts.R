@@ -95,6 +95,20 @@ check("marginaleffects exports get_draws()",
       "reference/contrasts.md, reference/reviewer-responses.md",
       is.function(marginaleffects::get_draws))
 
+check("projpred cv_varsel() still takes validate_search, nterms_max and nloo",
+      "reference/comparison.md (the two-pass projpred recipe)",
+      all(vapply(c("validate_search", "nterms_max", "nloo"), \(a)
+                 has_arg_of(projpred:::cv_varsel.refmodel, a), logical(1))))
+
+check("projpred cv_varsel() still defaults validate_search to TRUE",
+      "reference/comparison.md, which tells the reader the default is the one to keep",
+      isTRUE(formals(projpred:::cv_varsel.refmodel)$validate_search))
+
+check("projpred ranking() takes nterms_max, and cv_proportions() exists",
+      "reference/comparison.md (the fold-stability table)",
+      has_arg_of(projpred:::ranking.vsel, "nterms_max") &&
+        is.function(projpred::cv_proportions))
+
 check("bayesplot ppc_bars() still refuses continuous yrep",
       "reference/families.md (the rounding caveat)",
       inherits(tryCatch(bayesplot::ppc_bars(c(1, 2, 3), matrix(rnorm(9), 3)),

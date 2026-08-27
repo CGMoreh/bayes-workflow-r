@@ -212,17 +212,72 @@ free.
 
 When there are more candidate predictors than the data can separate, `projpred` projects the
 full model onto smaller ones and reports how much predictive performance a reduced set retains.
+Fit the full model well first, with a prior chosen by what it implies about explained variance
+(see `reference/priors.md`): the projection inherits whatever the reference model got wrong.
+
+### Run it in two passes, and cap the expensive one
+
+`validate_search = TRUE` is the default and should stay that way for anything you report: it
+repeats the whole forward search inside every fold, so a term found only because of this
+particular sample shows up as a term the folds disagree about. It is also what makes the run
+expensive - a validated search over 26 candidate predictors at n = 407 takes tens of minutes,
+against about two for the unvalidated one.
+
+So run it twice. The first pass is cheap and exists only to tell you where to cap the second.
 
 ```r
 library(projpred)
-vs <- cv_varsel(m_full, method = "forward", cv_method = "loo")
-plot(vs, stats = "elpd")
-suggest_size(vs)
+
+# pass 1, cheap: the search runs ONCE on the full data and only the scoring is
+# cross-validated, so the search itself can overfit and the submodel curve can
+# climb ABOVE the reference model. Read this for the shape and for where the
+# curve flattens. Never quote a performance figure from it.
+vs_fast <- cv_varsel(m_full, method = "forward", validate_search = FALSE)
+plot(vs_fast, stats = "elpd")
+
+# pass 2, the run you report. nterms_max comes from pass 1 - searching to 26
+# terms when the curve flattened by 8 spends most of the cost on sizes nobody
+# will report. nloo subsamples the LOO folds used for the search; 50 is
+# workable at a few hundred observations and is what the book's case study uses.
+vs <- cv_varsel(m_full, method = "forward", validate_search = TRUE,
+                nterms_max = 10, nloo = 50)
 ```
 
-Use it to show that a minimal set of predictors carries the predictive content, as a robustness
-argument. Do not use it to select a model and then report its coefficients as though the
-selection had not happened.
+### Reading the result
+
+```r
+suggest_size(vs)                            # a starting point, not an answer
+rk <- ranking(vs, nterms_max = suggest_size(vs))
+rk[["fulldata"]]                            # the terms, in relevance order
+cv_proportions(rk)                          # how often each entered, across folds
+```
+
+`ranking()` takes `nterms_max`, not `nterms`. R's partial argument matching means `nterms =`
+silently works, which is worth knowing only so that seeing it in someone else's code does not
+mislead you.
+
+`suggest_size()` applies a stopping rule to a noisy curve, and it moves with how the
+cross-validation was set up. On the book's own student-grades case it returns 4 whether the
+search is capped at 10 terms or 27, and on both the elpd and mlpd rules. The same data with the
+same validated search, scored by five-fold cross-validation instead of subsampled LOO, returned
+17. Neither run is wrong: five folds give larger and noisier fold-wise differences, and a
+stopping rule reading a noisier curve stops later. The size is therefore not a property of the
+data alone. Report the cross-validation scheme alongside the number, and read the number
+against `cv_proportions()` rather than quoting it on its own.
+
+That fold table is the part to lead with. A predictor entering in every fold at the same
+position is a finding; one entering in three folds of five is a property of this sample. In the
+student-grades case the first four terms enter in 100% of folds, which is what licenses quoting
+a set of four rather than a set of four with the fourth hedged.
+
+### What not to do with it
+
+Use `projpred` to show that a minimal set carries the predictive content, as a robustness
+argument. Do not select a model with it and then report that model's coefficients as though the
+selection had not happened: the selection consumed information from the same data, and the
+resulting intervals are too narrow. If you need coefficients for the reduced set, either use the
+projected posterior that `project()` returns, or refit and say in the write-up that the
+variables were chosen on these data.
 
 ---
 

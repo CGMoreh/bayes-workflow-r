@@ -3,7 +3,8 @@
 # Purpose:    Compare models by leave-one-out cross-validation, verify they were
 #             fitted to the same observations, check Pareto k, and report how
 #             concentrated the difference is across cases
-# Sourced by: bayes-workflow-r skill; call bw_loo_report(m1, m2)
+# Sourced by: bayes-workflow-r skill; call bw_loo_report(m1, m2), or bw_loo_report(m)
+#             for the single-model diagnostics and the optimism check alone
 # Author:     Chris Moreh
 # Last updated: 2026-08-27
 ################################################################################
@@ -13,6 +14,11 @@
 # drops incomplete rows per model, the pointwise vectors come out different lengths,
 # and R recycles them with a warning rather than an error. bw_loo_report() refuses.
 #
+# One model is a legitimate call. Comparison needs two, but the optimism section -
+# in-sample explained variance against its leave-one-out counterpart - is a property
+# of a single fit, and it is the check that says whether a model is overfitting at
+# all. Passing one fit runs the diagnostics and the optimism section and stops there.
+#
 # Grouped cross-validation lives in bw_kfold_grouped() below, because it refits the
 # model K times and has no business running inside a routine report.
 
@@ -21,10 +27,11 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
   fits <- list(...)
   nms  <- vapply(substitute(list(...))[-1], deparse, character(1))
   names(fits) <- nms
-  stopifnot(length(fits) >= 2, all(vapply(fits, inherits, logical(1), "brmsfit")))
+  stopifnot(length(fits) >= 1, all(vapply(fits, inherits, logical(1), "brmsfit")))
   requireNamespace("loo", quietly = TRUE)
+  solo <- length(fits) == 1L
 
-  cat("\n=== LOO comparison ===\n")
+  cat(if (solo) "\n=== LOO report ===\n" else "\n=== LOO comparison ===\n")
 
   # --- are these models even comparable?
   rows <- lapply(fits, \(f) rownames(f$data))
@@ -106,6 +113,13 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
           "     a prior that pulls less hard towards high explained variance usually\n",
           "     shrinks this gap without costing predictive performance.\n", sep = "")
     }
+  }
+
+  if (solo) {
+    cat("\nOne model was supplied, so there is no comparison to make. The Pareto k and\n",
+        "optimism sections above are the whole of what a single fit supports here. To\n",
+        "compare, pass the models together: bw_loo_report(m1, m2).\n", sep = "")
+    return(invisible(list(fits = fits, loos = loos, comparison = NULL, pointwise = NULL)))
   }
 
   cat("\n-- comparison --\n")
