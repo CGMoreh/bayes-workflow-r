@@ -5,7 +5,7 @@
     {
       "id": 1,
       "prompt": "I'm fitting a brms regression with about 20 standardised predictors and I've set prior(normal(0, 0.5), class = \"b\") on the slopes. That's weakly informative, right? Just want a sanity check before I run it.",
-      "expected_output": "A warning that independent coefficient priors combine into a strong prior on explained variance, the correct computation of the implied prior R-squared, and R2D2 as the remedy rather than a smaller scale.",
+      "expected_output": "A warning that independent coefficient priors combine into a strong prior on explained variance, the correct computation of the implied prior R-squared, and a remedy that targets the implied prior directly rather than rescaling the coefficient prior by eye.",
       "assertions": [
         "The response gives runnable R code computing the prior distribution of R-squared from the model's variance components on a sample_prior = \"only\" fit",
         "The response warns that bayes_R2() on a prior-only fit returns an artefact and must not be used for this",

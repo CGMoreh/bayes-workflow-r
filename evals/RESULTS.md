@@ -58,7 +58,7 @@ creditable methods paragraph.
 Iteration 2 therefore replaced those assertions with checks aimed at the failures iteration 1
 had actually observed, retired the cases the model handled unaided, and added cases for content
 added since. The delta rose because the instrument changed, not because the skills got three
-times better. Both figures are honest; the second is the more informative one, because it
+times better. Both figures are accurate; the second is the more informative one, because it
 measures what the skills are for.
 
 ## Where the value sits
@@ -68,7 +68,9 @@ the unassisted model:
 
 - recommended `bayes_R2()` on a prior-only fit as the check on implied priors, in one case
   attaching a decision threshold to a statistic that returns roughly 0.5 whatever the priors
-  say, and offered a smaller coefficient scale as the remedy;
+  say; and, where it did reach a workable remedy, reached it without saying why choosing a
+  coefficient scale by eye is not one, which is the mistake a reader is most likely to repeat
+  unaided;
 - measured how concentrated a model comparison is against the net difference rather than the
   total absolute pointwise disagreement, a ratio that is unbounded and returned 213% on real
   data during development;
@@ -100,6 +102,37 @@ Iteration 2 produced the single assertion that failed in *both* configurations: 
 constructed a poststratification frame from census counts, because `poststratification.md`
 itself began from a ready-made table. The recipe now builds the frame and states the
 joint-counts-against-margins constraint as part of the method.
+
+## A corrected assertion, and the case re-run
+
+Validating the skills against the book's own case studies turned up an error in this suite.
+One assertion required a response to say that reducing the coefficient scale "does not solve
+the problem", and had accordingly marked an unassisted run wrong for proposing a slope prior
+scaled as `sqrt(0.3/k)*sd(y)`. That is the book's own second option in its variable-selection
+chapter, and measured on the skill's own example it works: the implied prior median moves to
+the target and stays there as predictors are added. `reference/priors.md` carried the same
+over-claim, having been written from a test that only halved the scale arbitrarily.
+
+Both were corrected. The reference file now separates three things that the earlier wording ran
+together – rescaling by eye, which barely moves the implied prior; scaling to a target, which
+controls its centre but not its upper tail; and putting the prior on R^2^ directly, which
+controls the whole distribution. The assertion now asks for that distinction rather than for
+the over-claim.
+
+The case was then re-run. Because the with-skill response had been produced from the superseded
+reference file, that arm was resampled against the corrected one; the unassisted response does
+not depend on the skill, so it was re-graded rather than re-sampled, which keeps the assertion
+change from being confounded with run-to-run variation. Both were graded blind, by a grader
+given the two responses as A and B with no access to the skills or to any record of how either
+was produced.
+
+The marks did not move: 4 of 4 with the skill, 1 of 4 without, and the suite's aggregate is
+unchanged at +0.297 with a bootstrap interval of [0.19, 0.41]. What moved is what the mark
+measures. The assertion now discriminates on defensible grounds – the unassisted response
+reached a workable scaling but never conveyed that hand-picking a scale is not one – rather
+than rewarding the skill for reciting something that was not true. The re-run lives in the
+development workspace rather than here, since the published record is the corrected suite
+itself.
 
 ## Activation
 
@@ -134,7 +167,7 @@ bootstrap resamples cases rather than runs and why the interval is the quantity 
 than the pass rate.
 
 The **assertions were written by the skills' author** after seeing what the skills do. That
-biases the suite toward the skills, and the honest control for it is the "passes in both"
+biases the suite toward the skills, and the control for it is the "passes in both"
 column: an assertion the unassisted model also satisfies is not measuring the skill, and 47 of
 68 fell into that category even after the rewrite.
 

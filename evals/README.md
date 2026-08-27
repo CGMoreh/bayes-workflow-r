@@ -61,8 +61,8 @@ That split is the output that matters, and it is worth more than the pass rate. 
 passing in BOTH configurations are measuring the model rather than the skill and should be
 replaced. Assertions failing in both are either broken or a real gap in the skill – this
 repository has had one of each. Assertions only the skill passes are the whole of its
-measured value, and if that list is short, the honest response is to say so rather than to
-report the ceiling.
+measured value, and if that list is short, the finding to report is that shortness rather
+than the ceiling.
 
 The script needs `jsonlite`, `purrr` and `dplyr`, all of which arrive with the plugin's
 existing requirements; there is no dependency here beyond what running the skills already

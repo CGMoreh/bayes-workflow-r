@@ -113,7 +113,8 @@ makes in prose. If one starts failing, the fix is a sentence, not a line of code
 exactly right for an analysis and exactly wrong for a plugin that runs inside somebody else's
 analysis. The version table records what was tested; the contracts tell you when that record
 has gone stale; the guards keep a script useful in between. That is the whole mechanism, and
-it is the most a tool in this position can honestly offer.
+it is the most a tool in this position can offer without claiming a stability it does not
+have.
 
 **No test of the skills' own quality here.** That lives in `evals/`, which measures whether
 the instructions produce good work rather than whether the code still runs. The two answer
