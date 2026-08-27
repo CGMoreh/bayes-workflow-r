@@ -256,19 +256,43 @@ cv_proportions(rk)                          # how often each entered, across fol
 silently works, which is worth knowing only so that seeing it in someone else's code does not
 mislead you.
 
-`suggest_size()` applies a stopping rule to a noisy curve, and it moves with how the
-cross-validation was set up. On the book's own student-grades case it returns 4 whether the
-search is capped at 10 terms or 27, and on both the elpd and mlpd rules. The same data with the
-same validated search, scored by five-fold cross-validation instead of subsampled LOO, returned
-17. Neither run is wrong: five folds give larger and noisier fold-wise differences, and a
-stopping rule reading a noisier curve stops later. The size is therefore not a property of the
-data alone. Report the cross-validation scheme alongside the number, and read the number
-against `cv_proportions()` rather than quoting it on its own.
+The relevance ordering is the stable part. The size rule and the stability table are not, and
+both move with the cross-validation scheme. Here is the same reference model and the same
+validated forward search on the book's student-grades case, scored three ways:
 
-That fold table is the part to lead with. A predictor entering in every fold at the same
-position is a finding; one entering in three folds of five is a property of this sample. In the
-student-grades case the first four terms enter in 100% of folds, which is what licenses quoting
-a set of four rather than a set of four with the fourth hedged.
+| Scheme | `suggest_size()` | Cumulative fold proportion by size 4 |
+|---|---:|---|
+| Subsampled LOO, `nloo = 50` | 4 | `failures` 1.0, `schoolsup` 1.0, `Medu` 1.0, `goout` 1.0 |
+| 10-fold | 3 | `failures` 1.0, `schoolsup` 1.0, `Medu` 1.0, `goout` 0.5 |
+| 5-fold | 8 | `failures` 1.0, `schoolsup` 1.0, `Medu` 0.8, `goout` 0.0 |
+
+```markdown
+| Scheme                      | `suggest_size()` | Cumulative fold proportion by size 4                        |
+|-----------------------------|-----------------:|-------------------------------------------------------------|
+| Subsampled LOO, `nloo = 50` |                4 | failures 1.0, schoolsup 1.0, Medu 1.0, goout 1.0             |
+| 10-fold                     |                3 | failures 1.0, schoolsup 1.0, Medu 1.0, goout 0.5             |
+| 5-fold                      |                8 | failures 1.0, schoolsup 1.0, Medu 0.8, goout 0.0             |
+
+: One reference model, one validated forward search, three cross-validation schemes. The full-data relevance order is identical in all three; the size rule and the stability table are not.
+```
+
+Two things follow, and they pull in opposite directions.
+
+**Few folds break the size rule.** Five folds gave 8 here and 17 on the same data analysed by a
+different reference model. Fold-wise elpd differences get larger and noisier as folds get
+coarser, and a stopping rule reading a noisier curve stops later. If `suggest_size()` returns
+something implausibly large, suspect the fold count before blaming the rule.
+
+**Leave-one-out flatters the stability table.** Each LOO fold's search sees 406 observations of
+407, so it very nearly reproduces the full-data search, and proportions of 1.00 are closer to
+structural than to evidential. The 1.00 on `goout` above becomes 0.5 at ten folds. Read a
+column of 1.00s from a LOO run as "the ordering did not change", not as "this predictor would
+survive a different sample".
+
+So use subsampled LOO for the size, and look at a K-fold run before claiming a predictor is
+found reliably. Where the two disagree - as they do on `goout` here - the reportable statement
+is that three predictors are found in every fold under every scheme and the fourth is not, which
+is more informative than either number alone.
 
 ### Do not price the selection by refitting the winner
 
