@@ -270,6 +270,36 @@ position is a finding; one entering in three folds of five is a property of this
 student-grades case the first four terms enter in 100% of folds, which is what licenses quoting
 a set of four rather than a set of four with the fourth hedged.
 
+### Do not price the selection by refitting the winner
+
+The tempting last step is to refit the selected predictors as a model in their own right and
+`loo_compare()` it against the full model, to show the reduced set loses nothing. That
+comparison scores the subset on the data that chose it, so it flatters the subset, and the
+amount by which it does is not something the output tells you.
+
+Measured on the book's student-grades case, comparing its four selected predictors against all
+26:
+
+| How the four-predictor model is scored | elpd against all 26 | se |
+|---|---:|---:|
+| The cross-validated column from `cv_varsel` | −2.46 | 4.20 |
+| Refitted and passed to `loo_compare()` | −1.55 | 4.41 |
+
+```markdown
+| How the four-predictor model is scored      | elpd against all 26 |   se |
+|---------------------------------------------|--------------------:|-----:|
+| The cross-validated column from `cv_varsel`  |               -2.46 | 4.20 |
+| Refitted and passed to `loo_compare()`       |               -1.55 | 4.41 |
+
+: What refitting a selected subset hides, on the book's student-grades case. Both figures are for the same four predictors against the same 26.
+```
+
+Here the refit flatters the four by 0.91 elpd - real, in the direction theory predicts, and small
+enough that the conclusion survives it. Do not read that as a general licence. The size of the
+gap depends on how many candidates the search ran through and how hard the selection had to
+work, and nothing in the refit-and-compare output signals when it is large. The figure to quote
+is the one from the cross-validated column, which has already paid for the search.
+
 ### What not to do with it
 
 Use `projpred` to show that a minimal set carries the predictive content, as a robustness

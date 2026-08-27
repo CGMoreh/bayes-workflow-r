@@ -69,6 +69,20 @@ about the model, and tuning until it disappears destroys the information without
 anything. The right response to a conflict is to work out which of the prior and the data is
 telling you something you did not expect.
 
+**Say what the check could change before you run it.** Write down which decision depends on the
+answer - which specification is carried forward, which quantity is reported, which caveat goes
+in the write-up. If nothing does, the analysis is still worth running as a check, but it is a
+check that passed, not a reason for a choice, and it should be reported that way.
+
+The failure mode is presenting a sensitivity result as decisive when the decision had already
+been settled elsewhere. An analysis reviewed while these skills were being validated wrote that
+power-scaling "is what decided the primary model" among three priors, having already shown two
+sections earlier that leave-one-out could not separate them - 0.16 elpd apart with a standard
+error of 1.66 - and going on to report the same out-of-sample R squared, 0.201 against 0.201
+against 0.194, and the same leading predictors under all three. Whichever prior had been
+chosen, every reported number would have been the same. The check was well run and correctly
+read; it simply had nothing to decide, and saying so is the more useful sentence.
+
 ## Sensitivity of the estimand, not of the coefficients
 
 This is the refinement that matters most in practice, and the one almost nobody runs.

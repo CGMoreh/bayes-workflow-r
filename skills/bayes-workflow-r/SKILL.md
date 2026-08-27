@@ -66,6 +66,22 @@ Three questions, answered in writing, before any `brm()` call:
 The numbering is a reading order, not a schedule. Steps 5 to 8 send you back to steps 1 to 3
 regularly, and that is the workflow working rather than failing.
 
+### Spend the compute where the question is
+
+The steps are not equally load-bearing for every question, and running all of them at full
+length is not the goal. Decide from question 1 above which step answers the thing being asked,
+and give that step the budget; the rest are checks on the answer and can be run at whatever
+resolution is enough to pass or fail them.
+
+This gets inverted easily, because the checks are the memorable part of a workflow and the
+answer is the ordinary part. A worked example from validating these skills: an analysis whose
+brief asked which predictors matter spent 130 refits on design calibration, a check, and then
+ran the variable selection - the answer - at five cross-validation folds on the reasoning that
+a fuller search cost more than the question was worth. The size rule came back unusable, the
+fold-stability table was too noisy to read, and the analysis dropped a predictor that every
+better-resourced run keeps. The diagnostics were the strongest part of that report and its
+answer was the weakest, and the two facts have the same cause.
+
 ## Gates
 
 Three claims must not be made until the corresponding check has actually been run, and the
