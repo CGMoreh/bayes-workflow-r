@@ -165,6 +165,18 @@ the reference material carries numbers someone measured rather than numbers some
 : Assertion pass rate across the 16 iteration-two eval cases, each run once with and once without the skill available. Iteration one (18 broader cases): 1.00 against 0.89.
 ```
 
+## Maintenance
+
+These skills call packages that move. `tests/dependency-contracts.R` asserts every package
+behaviour they depend on and names the file that depends on each, and a monthly GitHub
+Actions run executes it against current CRAN, opening an issue when something breaks. Run it
+yourself any time with `Rscript tests/dependency-contracts.R`.
+
+Nothing here pins your library. The skills run inside your analysis project against whatever
+you have installed, so [MAINTENANCE.md](MAINTENANCE.md) records the versions last tested
+rather than required, lists what is most likely to break, and explains the guards that keep a
+script useful when it does.
+
 ## Contributing
 
 Issues and pull requests are welcome, particularly corrections. Every numerical claim in these

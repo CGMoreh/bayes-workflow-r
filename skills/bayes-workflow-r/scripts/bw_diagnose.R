@@ -35,8 +35,7 @@ bw_diagnose <- function(fit, rhat_max = 1.01, ess_min = 400, pars = NULL,
   # against the CONFIGURED limit, not the observed maximum: a fit whose deepest
   # trajectory is 11 under a limit of 12 has saturated nothing, and a fit run at a
   # low limit saturates constantly while its observed maximum merely equals it.
-  td_limit  <- unique(unlist(lapply(fit$fit@stan_args, function(a) a$control$max_treedepth)))
-  td_limit  <- if (length(td_limit) == 1L && is.numeric(td_limit)) td_limit else 10
+  td_limit  <- bw_stan_control(fit, "max_treedepth", 10)
   at_max_td <- sum(treedepth >= td_limit, na.rm = TRUE)
   ebfmi     <- tryCatch(rstan::get_bfmi(fit$fit), error = \(e) NA_real_)
 
@@ -77,8 +76,7 @@ bw_diagnose <- function(fit, rhat_max = 1.01, ess_min = 400, pars = NULL,
   } else {
     cat(sprintf("divergences  FAIL  %d of %d draws (%.1f%%)\n",
                 divergent, n_draws, 100 * div_rate))
-    ad <- fit$fit@stan_args[[1]]$control$adapt_delta
-    ad <- if (is.null(ad)) 0.8 else ad
+    ad <- bw_stan_control(fit, "adapt_delta", 0.8)
     if (ad < 0.99) {
       cat(sprintf("  -> adapt_delta is %.3f. Raise it to 0.99 and refit before concluding\n", ad),
           "     anything about the geometry.\n", sep = "")
@@ -117,6 +115,25 @@ bw_diagnose <- function(fit, rhat_max = 1.01, ess_min = 400, pars = NULL,
   invisible(list(summary = smry, divergent = divergent,
                  treedepth_saturated = at_max_td, treedepth_limit = td_limit, ebfmi = ebfmi, passed = passed))
 }
+
+# Sampler settings live in an rstan S4 slot that brms populates whatever the
+# backend. That is an internal structure rather than a documented interface, so
+# read it defensively: a layout change should cost the tuning context in one
+# line of output, not the whole diagnosis. Tested against brms 2.23 / rstan 2.32.
+bw_stan_control <- function(fit, setting, default) {
+  v <- tryCatch(
+    unique(unlist(lapply(fit$fit@stan_args, function(a) a$control[[setting]]))),
+    error = function(e) NULL
+  )
+  if (length(v) == 1L && is.numeric(v)) return(v)
+  if (is.null(v)) {
+    cat(sprintf("  (could not read %s from this fit under brms %s; assuming the Stan\n",
+                setting, as.character(utils::packageVersion("brms"))))
+    cat(sprintf("   default of %s. If that is wrong, pass the value explicitly.)\n", default))
+  }
+  default
+}
+
 if (sys.nframe() == 0L) {
   # Rscript entry: Rscript bw_diagnose.R <fit.rds>
   args <- commandArgs(trailingOnly = TRUE)

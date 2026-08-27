@@ -1,0 +1,93 @@
+name: dependency contracts
+
+# Runs the contract checks against whatever CRAN currently serves, so a package
+# update that breaks an assumption in the skills is caught here rather than by a
+# user mid-analysis. Nothing here is a build: the plugin is markdown and R
+# scripts, and this job is the only automation it has.
+
+on:
+  schedule:
+    # 06:00 UTC on the first of each month. Dependencies here move on a scale of
+    # months, and a nightly run would mostly cost CI minutes to confirm silence.
+    - cron: "0 6 1 * *"
+  workflow_dispatch:          # run it by hand after a release you care about
+  push:
+    paths:
+      - "skills/**/scripts/*.R"
+      - "tests/dependency-contracts.R"
+      - ".github/workflows/dependency-contracts.yml"
+  pull_request:
+    paths:
+      - "skills/**/scripts/*.R"
+      - "tests/dependency-contracts.R"
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install dependencies from CRAN
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::brms
+            any::loo
+            any::posterior
+            any::priorsense
+            any::marginaleffects
+            any::bayesplot
+            any::projpred
+            any::jsonlite
+            any::dplyr
+            any::purrr
+
+      - name: Install CmdStan
+        run: |
+          install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev", getOption("repos")))
+          cmdstanr::check_cmdstan_toolchain(fix = TRUE)
+          cmdstanr::install_cmdstan(cores = 2)
+        shell: Rscript {0}
+
+      - name: Record the versions actually tested
+        run: |
+          for (p in c("brms","loo","posterior","priorsense","marginaleffects",
+                      "bayesplot","projpred","jsonlite")) {
+            cat(sprintf("%-16s %s\n", p, as.character(packageVersion(p))))
+          }
+          cat(sprintf("%-16s %s\n", "CmdStan", cmdstanr::cmdstan_version()))
+        shell: Rscript {0}
+
+      - name: Run dependency contracts
+        run: Rscript tests/dependency-contracts.R
+
+      - name: Open an issue when a contract breaks
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Dependency contract failure on the scheduled run';
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'dependencies'
+            });
+            if (existing.data.some(i => i.title === title)) return;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title,
+              labels: ['dependencies'],
+              body: [
+                'The monthly contract run failed, so a dependency has changed under the skills.',
+                '',
+                `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                '',
+                'The log names each failing contract and the file that depends on it.',
+                'Fix that file, then update the tested-against versions in MAINTENANCE.md.'
+              ].join('\n')
+            });
