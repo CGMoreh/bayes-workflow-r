@@ -1,0 +1,62 @@
+{
+  "skill_name": "bayes-estimands-r",
+  "notes": "Iteration-2 suite. Iteration 1 retired the mediation and post-treatment cases (the unassisted model handled both completely) and kept what discriminated: the conditions under which a coefficient equals an average effect, and robustness judged on the estimand. New cases target the mediator-expectation trap under a non-linear link (measured at 38-40% inflation of every path), frame construction in poststratification (the iteration-1 baseline treated the frame as given), and the interaction fallacy with the contrast-of-contrasts as its remedy.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I fitted brm(re78 ~ treat * age + educ + race + married, data = lalonde) using the MatchIt lalonde data. What is the effect of the training programme on earnings?",
+      "expected_output": "A refusal to read the effect off the treat coefficient, the sample-against-population distinction, contrasts computed by averaging within draws, and the conditions under which the coefficient would equal the sample average effect.",
+      "assertions": [
+        "The response does NOT report the treat coefficient as the treatment effect without qualification",
+        "The response distinguishes a sample average effect from an effect for a differently composed target population, with an interaction present",
+        "The response supplies code using avg_comparisons() or an equivalent within-draw counterfactual simulation",
+        "The response states the conditions under which the coefficient equals the average effect, such as the interacted covariate being centred, rather than leaving the relationship unstated"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My outcome Y is binary (logistic model), the mediator M is continuous, exposure Z is binary. For the indirect effect I compute posterior_epred() of M under z = 0 and z = 1, plug those mediator means into the outcome equation, apply plogis, and take the difference. n = 800 so precision is fine. Sound?",
+      "expected_output": "Identification of the expectation-plug-in flaw: with a non-linear outcome link the effect must be averaged over the mediator's distribution, not evaluated at its mean, so the mediator needs posterior_predict(); the bias inflates every path and grows with mediation strength.",
+      "assertions": [
+        "The response identifies the flaw: plugging the mediator's expectation into a non-linear outcome equation biases the effects, because the expectation of a non-linear function is not the function of the expectation",
+        "The response prescribes simulating the mediator - posterior_predict() or explicit integration over its distribution - rather than using its expectation",
+        "The response states that the bias grows with the strength of mediation or the mediator's residual variance, or quantifies the inflation",
+        "The response does NOT endorse the plan as sound"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My survey sample badly over-represents graduates compared with the national population. I have census counts by education, age band and region. Can I still say something about the national picture, and how?",
+      "expected_output": "Multilevel regression and poststratification, with the frame constructed from the census counts, prediction into it with allow_new_levels, averaging within draws weighted by cell size, and the limitation stated.",
+      "assertions": [
+        "The response shows how to CONSTRUCT the poststratification frame from the census counts - code building the cell table with population sizes - rather than assuming a ready-made frame",
+        "The response averages predictions within each posterior draw weighted by cell size, rather than averaging summaries",
+        "The response handles cells present in the population but absent from the sample, for example with allow_new_levels = TRUE",
+        "The response uses partial pooling so sparse cells borrow strength, and says why",
+        "The response states that poststratification removes only bias running through the cell variables"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I added a quadratic term interacted with treatment to check robustness. The coefficients all look fine and none of them changed much, so the result is robust. Agreed?",
+      "expected_output": "Robustness judged on the estimand rather than the coefficient table: the added term can inflate the estimand's posterior uncertainty while coefficients look stable, and the check is the posterior relationship between the added coefficient and the estimand.",
+      "assertions": [
+        "The response redirects the check from the coefficients to the reported quantity of interest",
+        "The response explains that an added flexible term can inflate the posterior uncertainty of the estimand even when coefficients appear stable",
+        "The response suggests examining the posterior relationship between the added coefficient and the estimand, or comparing the estimand's uncertainty across the two models",
+        "The response recomputes the average effect under the expanded model rather than inspecting the coefficient table alone"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The treatment effect for men is 0.31 with 89% interval [0.05, 0.58]. For women it's 0.14 with interval [-0.09, 0.37]. So the effect is there for men but not for women - I'll write that the effect differs by gender.",
+      "expected_output": "The interaction fallacy named and corrected: one interval excluding zero and one not does not establish a difference; the difference in effects is its own contrast with its own interval, computable in one call.",
+      "assertions": [
+        "The response states that one interval excluding zero and the other not does NOT establish that the effects differ",
+        "The response computes or prescribes the difference between the two effects as its own contrast with its own posterior interval, for example avg_comparisons(..., by = ..., hypothesis = ~ pairwise)",
+        "The response says what CAN be claimed about each group separately without the comparative claim",
+        "The response does NOT endorse writing that the effect differs by gender on the evidence given"
+      ]
+    }
+  ]
+}

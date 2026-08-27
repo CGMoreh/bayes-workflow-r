@@ -1,0 +1,7 @@
+# Normalise to LF in the repository and on checkout, so R scripts invoked from a
+# shell behave the same on every platform regardless of a contributor's settings.
+* text=auto eol=lf
+*.R    text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.cff  text eol=lf

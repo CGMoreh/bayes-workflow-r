@@ -1,0 +1,30 @@
+{
+  "name": "bayes-workflow-r",
+  "owner": {
+    "name": "Chris Moreh",
+    "url": "https://github.com/CGMoreh"
+  },
+  "metadata": {
+    "description": "Bayesian workflow skills for R, brms and Stan, aimed at applied researchers who have to publish the analysis as well as run it."
+  },
+  "plugins": [
+    {
+      "name": "bayes-workflow-r",
+      "source": "./",
+      "description": "Bayesian workflow in R with brms and Stan: prior checking, computational diagnosis, predictive checking, estimands and target populations, design calibration, and the methods write-up.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Chris Moreh"
+      },
+      "homepage": "https://github.com/CGMoreh/bayes-workflow-r",
+      "repository": "https://github.com/CGMoreh/bayes-workflow-r",
+      "license": "MIT",
+      "keywords": [
+        "r", "brms", "stan", "bayesian", "workflow", "loo", "priorsense",
+        "poststratification", "causal-inference", "social-science"
+      ],
+      "category": "data-science",
+      "tags": ["r", "statistics", "bayesian", "research"]
+    }
+  ]
+}

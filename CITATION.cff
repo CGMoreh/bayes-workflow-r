@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+title: "bayes-workflow-r: agent skills for Bayesian workflow in R"
+message: >-
+  If you use these skills, please cite the book they follow (Gelman et al. 2026)
+  for anything methodological. Cite this repository only for the tooling itself.
+type: software
+authors:
+  - given-names: Chris
+    family-names: Moreh
+repository-code: "https://github.com/CGMoreh/bayes-workflow-r"
+license: MIT
+version: 0.1.0
+date-released: "2026-08-26"
+keywords:
+  - bayesian-workflow
+  - brms
+  - stan
+  - r
+  - agent-skills
+references:
+  - type: book
+    title: "Bayesian Workflow"
+    year: 2026
+    publisher:
+      name: "Chapman and Hall/CRC"
+    authors:
+      - {given-names: Andrew, family-names: Gelman}
+      - {given-names: Aki, family-names: Vehtari}
+      - {given-names: Richard, family-names: McElreath}
+      - {given-names: Daniel, family-names: Simpson}
+      - {given-names: "Charles C.", family-names: Margossian}
+      - {given-names: Yuling, family-names: Yao}
+      - {given-names: Lauren, family-names: Kennedy}
+      - {given-names: Jonah, family-names: Gabry}
+      - {given-names: Paul-Christian, family-names: "Bürkner"}
+      - {given-names: Martin, family-names: "Modrák"}
+      - {given-names: Vianey, family-names: "Leos Barajas"}

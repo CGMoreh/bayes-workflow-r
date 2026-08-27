@@ -1,0 +1,83 @@
+{
+  "skill_name": "bayes-workflow-r",
+  "notes": "Iteration-2 suite. Iteration 1 (18 cases, 87 assertions) found 77 assertions passing with and without the skill; those are gone. What remains, and what is new, targets the mechanical failures the unassisted model actually produced: the bayes_R2 prior-only trap with a decision threshold attached, net-based concentration shares, sensitivity reported for coefficients when the paper reports an estimand, weights() offered as survey representativeness, and the hurdle/zero-inflation conflation. Cases 1-5 descend from iteration-1 cases 1, 5, 6, 7 and 8; cases 6-7 are new. The iteration-1 record is in the project's eval workspace.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm fitting a brms regression with about 20 standardised predictors and I've set prior(normal(0, 0.5), class = \"b\") on the slopes. That's weakly informative, right? Just want a sanity check before I run it.",
+      "expected_output": "A warning that independent coefficient priors combine into a strong prior on explained variance, the correct computation of the implied prior R-squared, and R2D2 as the remedy rather than a smaller scale.",
+      "assertions": [
+        "The response gives runnable R code computing the prior distribution of R-squared from the model's variance components on a sample_prior = \"only\" fit",
+        "The response warns that bayes_R2() on a prior-only fit returns an artefact and must not be used for this",
+        "The response mentions brms::R2D2() or setting the prior on R-squared directly",
+        "The response states or implies that reducing the coefficient scale does not solve the problem"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A reviewer says my Bayesian results could just be driven by my priors. I have n = 62 and I report an average marginal effect. The model has a spline term so the coefficients are all correlated. How do I answer this?",
+      "expected_output": "Power-scaling sensitivity of the reported average marginal effect rather than of the correlated coefficients, with the route for carrying a derived quantity through, and a warning against tuning priors until the diagnostics go quiet.",
+      "assertions": [
+        "The response states that marginal sensitivity of individual coefficients is uninformative when parameters are correlated in the posterior",
+        "The response shows how to carry the average marginal effect through as a derived quantity, for example with predictions_as_draws() and create_priorsense_data()",
+        "The response explains what LOW likelihood sensitivity would mean for a parameter (the data barely inform it), rather than merely naming likelihood sensitivity",
+        "The response warns against adjusting the priors until the diagnostic messages disappear"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "n = 40, and the 89% credible interval for my main effect excludes zero. Probability of direction is 0.97. Can I claim the effect?",
+      "expected_output": "A design-calibration computation at the actual sample size, yielding recovery, sign-error and exaggeration quantities, and a refusal to confirm the claim from the interval alone.",
+      "assertions": [
+        "The response describes a design-calibration computation - either simulation at the actual sample size with refitting, or an analytic retrodesign calculation from the posterior - that yields recovery or exaggeration quantities",
+        "The response warns that estimates conditional on clearing a threshold are inflated at small sample sizes, naming or quantifying the exaggeration",
+        "The response mentions the sign-error risk at this sample size",
+        "The response does NOT simply confirm that the effect can be claimed because the interval excludes zero"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I'm comparing two brms models of count data with loo_compare and I get elpd_diff of -55.1 with se_diff of 22.2 in favour of the negative binomial. That's more than two standard errors so I'll report the negative binomial as better. Anything else worth doing?",
+      "expected_output": "Pointwise attribution behind the aggregate, with concentration judged against the total absolute disagreement, Pareto k checks, and different reporting language for concentrated against general differences.",
+      "assertions": [
+        "The response supplies code extracting the pointwise elpd values from the loo objects and differencing them",
+        "The response judges concentration against the total ABSOLUTE disagreement, or explicitly warns that a share of the net difference is unbounded and misleading",
+        "The response tells the user to check the Pareto k diagnostics",
+        "The response distinguishes a concentrated difference from a general improvement and gives different reporting language for the two"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Using lme4::sleepstudy, fit a brms model of Reaction on Days with varying intercepts and slopes by Subject, and check whether the priors you choose are defensible before you look at the results.",
+      "expected_output": "Explicit priors, a prior predictive check run before interpretation that includes the implied prior on explained variance read at its upper tail, a check for impossible outcome values, and diagnostics before estimates.",
+      "assertions": [
+        "The response sets explicit priors rather than relying on brms defaults",
+        "The response computes the implied prior distribution of R-squared or explained variance and reads its upper tail, rather than judging priors only by the outcome range",
+        "The response quantifies whether the priors admit impossible outcomes (negative reaction times) rather than only mentioning the possibility",
+        "The response reports convergence diagnostics before reporting or interpreting estimates"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I have design weights from a complex survey. My plan is brm(y | weights(w) ~ education + age + region) so that the estimates are nationally representative. Good?",
+      "expected_output": "A correction: weights() scales likelihood contributions and does not deliver design-based representativeness or uncertainty; the coherent Bayesian route is to model the selection variables and poststratify the draws.",
+      "assertions": [
+        "The response states that weights() multiplies log-likelihood contributions and does not by itself deliver design-based representativeness or correct uncertainty",
+        "The response recommends modelling the selection-related variables and poststratifying posterior draws to population counts as the coherent route",
+        "The response notes a concrete side effect of likelihood weighting - its interaction with LOO/pointwise quantities, or that frequency weights are its legitimate use",
+        "The response does NOT endorse the plan as sufficient for representativeness"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "My outcome is the number of protest events attended in the past year. About 40% of respondents report zero, and plenty of them are people who would never attend anything. Should I use hurdle_negbinomial or zero_inflated_negbinomial - does the choice even matter?",
+      "expected_output": "The substantive distinction stated correctly - hurdle assigns all zeros to the zero process, zero inflation mixes structural zeros with ordinary count zeros - mapped onto the never-attenders to reach a recommendation, with the zero-component formula and a check on the zero mass.",
+      "assertions": [
+        "The response states the distinction correctly: a hurdle model generates ALL zeros from the zero process, while zero inflation mixes structural zeros with zeros arising from the count process",
+        "The response connects the never-attend subpopulation to the structural-zero component and reasons to a recommendation rather than calling the two interchangeable",
+        "The response notes that the zero component can take its own formula (zi ~ ... or hu ~ ...) so structural-zero membership can be modelled",
+        "The response names a check on the zero mass, such as pp_check(type = \"bars\") or a posterior predictive on the zero proportion"
+      ]
+    }
+  ]
+}

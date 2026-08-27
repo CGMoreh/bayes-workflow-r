@@ -1,0 +1,53 @@
+{
+  "skill_name": "bayes-reporting-r",
+  "notes": "Iteration-2 suite. Iteration 1 retired three cases the unassisted model handled completely (the weak-likelihood null, text-against-supplement placement, threshold-free reporting) and kept the two that touched the skill's structure. New cases target the reference content added since: the why-Bayesian objection, where the anti-pattern is answering with philosophy, and the log-to-appendix conversion, where the skill carries a scaffolder and a stage-coverage checklist.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write the methods paragraph for my paper. I fitted a brms logistic model of university entry on parental education, gender and region, with a varying intercept for region, on 1,204 respondents. Priors were normal(0, 1) on slopes and normal(0, 1.5) on the intercept. Four chains, 2000 iterations, all R-hat below 1.01, minimum bulk ESS 1,850, no divergences. I ran a prior predictive check and a power-scaling sensitivity analysis, and the average marginal effect of parental education was insensitive to the prior.",
+      "expected_output": "A methods paragraph reporting each stage with its values, the priors translated into what they imply, the sensitivity conclusion stated in its own clause, and the analysis framed as a workflow rather than a single fitted model.",
+      "assertions": [
+        "The paragraph reports the specific diagnostic values given rather than saying convergence was satisfactory",
+        "The paragraph translates the priors into what they imply on an interpretable scale rather than resting on the phrase weakly informative",
+        "The paragraph states the power-scaling conclusion in its own clause - the estimate reflects the data rather than the prior specification",
+        "The paragraph frames the analysis as an iterative workflow or sequence of checks rather than a single fitted model",
+        "The paragraph does NOT bury the sensitivity analysis in a list of things that were run without stating what it established"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Reviewer 2 writes: 'The authors' Bayesian analysis rests on n = 58. With a sample this small the priors are doing the work, and the reported effect is an artefact of the prior specification.' How should I respond?",
+      "expected_output": "Evidence before argument: power-scale the reported quantity, refit under a visibly different prior, put both in a memo paragraph that names the manuscript change, and concede if the diagnostic sides with the reviewer.",
+      "assertions": [
+        "The response recommends power-scaling the REPORTED quantity rather than the coefficient table",
+        "The response recommends a refit under a visibly different prior as a second, tabulable check alongside the diagnostic",
+        "The response supplies memo text that leads with the generated evidence and names the manuscript change and its location",
+        "The response says what to do if the diagnostic sides with the reviewer - reclassify the finding as undetermined rather than defend it",
+        "The response does NOT rest the reply on an argument that the priors were reasonable"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Reviewer 1 writes: 'The authors provide no justification for the Bayesian approach. A standard logistic regression would give the same answers with far less machinery.' Draft my response.",
+      "expected_output": "A warrant grounded in what this analysis needed - partial pooling for sparse cells, posterior uncertainty on derived quantities, or a measurement model - with usable memo wording and the one-sentence manuscript addition, and no philosophy.",
+      "assertions": [
+        "The response grounds the justification in something THIS analysis needed: partial pooling where cells are sparse, posterior uncertainty on a derived quantity, or a measurement model the outcome requires",
+        "The response does NOT rest the reply on philosophy - p-values being flawed, Bayesian inference being more intuitive, or uncertainty being quantified directly",
+        "The response supplies memo wording that could be pasted into a response letter",
+        "The response names the one-sentence addition the manuscript itself should carry"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Here is my analysis log. Turn it into a supplementary workflow appendix for my Quarto manuscript.\n\n## 2026-07-02 - m1: pooled logistic baseline\nPrior predictive fine (implied entry rates 0.12-0.88). Diagnostics clean. PPC on regional entry rates FAILED: observed between-region spread far outside the predictive interval.\n\n## 2026-07-05 - m2: varying intercept for region\nRegional PPC now passes. 3 divergences in 4000 at adapt_delta 0.8, scattered in the pairs plot. LOO prefers m2 by 12.4 (se 4.9).\n\n## 2026-07-09 - sensitivity\nPower-scaling: AME of parental education robust to prior perturbation, likelihood-sensitive. Done.",
+      "expected_output": "A Quarto appendix skeleton with one section per log pass in order, the failed check kept visible, a stage-coverage device, figure placeholders, and a software section.",
+      "assertions": [
+        "The output is Quarto structure: a YAML header, headings, and code chunks",
+        "There is one appendix section per log entry, in the log's order, carrying each entry's content",
+        "The FAILED regional check remains visible as the reason m2 exists, rather than being smoothed into a success story",
+        "The appendix includes a stage-coverage device - a checklist or table mapping workflow stages to where each is reported",
+        "The appendix includes a software or session-information element"
+      ]
+    }
+  ]
+}

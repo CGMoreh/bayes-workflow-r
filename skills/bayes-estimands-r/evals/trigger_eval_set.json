@@ -1,0 +1,78 @@
+[
+  {
+    "query": "I have a brms model with treatment interacted with age. What's the average treatment effect for a population older than my sample?",
+    "should_trigger": true
+  },
+  {
+    "query": "My survey over-represents graduates. I have census counts by education, age and region. Can I still say something about the national picture?",
+    "should_trigger": true
+  },
+  {
+    "query": "I want the direct effect of X on Y, not the part running through the mediator M. Do I just put M in the model and read the coefficient on X?",
+    "should_trigger": true
+  },
+  {
+    "query": "What does this brms coefficient actually mean on the probability scale? It's a logistic model and the coefficient is 0.42 in log-odds.",
+    "should_trigger": true
+  },
+  {
+    "query": "Should I control for the respondent's school grades when estimating the total effect of parental education on university entry?",
+    "should_trigger": true
+  },
+  {
+    "query": "I need the population average treatment effect rather than the sample one. My sample is younger than the population I care about.",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I get a risk difference with proper uncertainty out of a fitted Bayesian logistic model in R?",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm doing MRP on a non-probability sample and need small-area estimates by region with credible intervals.",
+    "should_trigger": true
+  },
+  {
+    "query": "my brms model threw 47 divergent transitions and rhat is 1.08. what do i do",
+    "should_trigger": false
+  },
+  {
+    "query": "Are normal(0, 1) priors on 15 standardised slopes weakly informative, or am I claiming more than I think?",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the methods paragraph describing the brms models I fitted and the diagnostics I ran.",
+    "should_trigger": false
+  },
+  {
+    "query": "Compare these two brms models by leave-one-out cross-validation and tell me which predicts better.",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm estimating a causal effect with DoWhy in Python using observational data and potential confounders.",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up propensity score matching with MatchIt and check covariate balance before and after.",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me apply survey weights in R with the survey package and compute a weighted mean with correct standard errors.",
+    "should_trigger": false
+  },
+  {
+    "query": "How many iterations and chains should I run for this brms model, and what counts as adequate effective sample size?",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you reshape my panel data and construct a lagged version of the income variable within person?",
+    "should_trigger": false
+  },
+  {
+    "query": "The effect is credible for men but the women's interval crosses zero - can I write that the effect differs by gender?",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I get a risk ratio instead of a probability difference out of avg_comparisons on my brms fit?",
+    "should_trigger": true
+  }
+]

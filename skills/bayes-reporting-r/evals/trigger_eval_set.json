@@ -1,0 +1,74 @@
+[
+  {
+    "query": "Write the methods paragraph for my paper. I fitted brms logistic models with a varying intercept for region on 1,204 respondents.",
+    "should_trigger": true
+  },
+  {
+    "query": "Reviewer 2 says my Bayesian results with n = 58 are an artefact of the priors. How should I respond in the memo?",
+    "should_trigger": true
+  },
+  {
+    "query": "My coefficient is centred on zero with a wide interval and the sensitivity output says weak likelihood. Can I write that we found no effect?",
+    "should_trigger": true
+  },
+  {
+    "query": "Which of my Bayesian diagnostics belong in the main text and which go in the supplement?",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I report a posterior for a sociology journal without making it sound like a significance test?",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm converting my analysis notebook into a manuscript. How much of the model-building sequence should actually appear in the paper?",
+    "should_trigger": true
+  },
+  {
+    "query": "Give me wording for the priors section that a methods reviewer won't object to. I used normal(0, 0.5) on standardised slopes and checked the prior predictive.",
+    "should_trigger": true
+  },
+  {
+    "query": "My paper mixes a large frequentist model with a small Bayesian one. How do I report both without confusing the reader?",
+    "should_trigger": true
+  },
+  {
+    "query": "my brms model threw 47 divergent transitions and rhat is 1.08. what do i do",
+    "should_trigger": false
+  },
+  {
+    "query": "What's the population average treatment effect for a target population older than my sample?",
+    "should_trigger": false
+  },
+  {
+    "query": "Compare these two brms models by leave-one-out cross-validation.",
+    "should_trigger": false
+  },
+  {
+    "query": "Are normal(0, 1) priors on 15 standardised slopes weakly informative?",
+    "should_trigger": false
+  },
+  {
+    "query": "Format this table in Quarto for a Typst preprint and get the column alignment right.",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me write the theory section of my paper on labour market integration.",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix my BibTeX file, several citekeys aren't resolving at render time.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run a power-scaling sensitivity analysis on my fitted model and tell me whether the estimate is prior-driven.",
+    "should_trigger": false
+  },
+  {
+    "query": "A reviewer asks why the analysis is Bayesian at all when logistic regression would do. Draft my response.",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn my analysis log into a supplementary workflow appendix for the Quarto manuscript.",
+    "should_trigger": true
+  }
+]

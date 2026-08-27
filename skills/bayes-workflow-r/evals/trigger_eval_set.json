@@ -1,0 +1,90 @@
+[
+  {
+    "query": "my brms model just threw 47 divergent transitions and rhat is 1.08 on one of the sd parameters. what do i do",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm setting priors for a logistic regression in brms with about 15 standardised predictors. Are normal(0, 1) slopes weakly informative here or am I claiming more than I think?",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I compare two brms models? One has a varying slope for time and the other doesn't. I've got both fits saved.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to check whether my fitted model actually reproduces the features of the data. It's a negative binomial count model of hospital admissions fitted with brms.",
+    "should_trigger": true
+  },
+  {
+    "query": "A reviewer thinks my priors drove the result. n is 71. How do I show they didn't, without refitting the model under a dozen alternative priors?",
+    "should_trigger": true
+  },
+  {
+    "query": "n = 34 and my 89% interval excludes zero. Before I write this up, can this design even detect an effect of the size I'm claiming?",
+    "should_trigger": true
+  },
+  {
+    "query": "I've written a Stan model by hand and I'm running it through cmdstanr. The chains are mixing badly and treedepth keeps saturating. Walk me through diagnosing it.",
+    "should_trigger": true
+  },
+  {
+    "query": "using rstanarm, stan_glmer on some school data \u2014 the group-level sd posterior is piled up against zero and I'm getting warnings. is the model wrong?",
+    "should_trigger": true
+  },
+  {
+    "query": "I fitted a brms model on survey data with item non-response and want to compare it by LOO against a reduced model. Anything I should watch out for?",
+    "should_trigger": true
+  },
+  {
+    "query": "My PyMC model has 200 divergences and the trace for chain 3 is flat. How do I fix it? I'm working in Python with ArviZ.",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you help me set up a BayesFlow amortized inference pipeline for simulation-based inference?",
+    "should_trigger": false
+  },
+  {
+    "query": "I need to fit a linear mixed model with lmer and interpret the ICC and the random effects output for schools.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run an A/B test for our redesign: 50k users per arm, 3.2% against 3.8% conversion. Give me the p-value and tell me whether it's significant.",
+    "should_trigger": false
+  },
+  {
+    "query": "I have a brms model with a treatment interacted with age. What is the average treatment effect for a population older than my sample?",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the methods paragraph for my paper describing the brms models I fitted and the diagnostics I ran.",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me reshape this panel dataset from wide to long in R and recode the education variable into three categories.",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm using JAGS for a hierarchical model in a psychology experiment. Can you help me write the model block?",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you build me a random forest in R with tidymodels to predict customer churn and tune the hyperparameters?",
+    "should_trigger": false
+  },
+  {
+    "query": "I need to poststratify my survey sample to census margins by age, education and region so the estimates represent the national population.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draw me a DAG for this theory and tell me the minimal adjustment set for the effect of parental education on income.",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm using brm(y | weights(w) ~ x + region) with my survey's design weights - will the estimates be nationally representative?",
+    "should_trigger": true
+  },
+  {
+    "query": "40% of my count outcome is zeros and many respondents would never do the activity at all. Hurdle or zero-inflated negative binomial in brms?",
+    "should_trigger": true
+  }
+]
