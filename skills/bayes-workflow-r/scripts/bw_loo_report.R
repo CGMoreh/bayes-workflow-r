@@ -79,6 +79,35 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
     }
   }
 
+  # --- how far each model's in-sample fit outruns its out-of-sample fit.
+  # A model comparison says which model predicts better; it never says whether
+  # EITHER is overfitting, and the two questions have different answers. The gap
+  # between a model-based R2 and its leave-one-out counterpart measures the
+  # second directly, which a comparison of elpd cannot.
+  cat("\n-- optimism: in-sample against out-of-sample --\n")
+  for (i in seq_along(fits)) {
+    gap <- tryCatch({
+      mu   <- brms::posterior_epred(fits[[i]])
+      sig2 <- as.matrix(fits[[i]], variable = "sigma")^2
+      vmu  <- apply(mu, 1, stats::var)
+      r2_in  <- stats::median(vmu / (vmu + sig2))
+      r2_loo <- stats::median(brms::loo_R2(fits[[i]], summary = FALSE)[, 1])
+      c(r2_in, r2_loo, r2_in - r2_loo)
+    }, error = function(e) NULL)
+    if (is.null(gap)) {
+      cat(sprintf("%-20s not available for this family\n", nms[i]))
+      next
+    }
+    cat(sprintf("%-20s R2 %.3f in-sample, %.3f out-of-sample, gap %+.3f\n",
+                nms[i], gap[1], gap[2], gap[3]))
+    if (gap[3] > 0.10) {
+      cat("  -> the in-sample fit outruns the out-of-sample fit substantially. The\n",
+          "     residual variance is being underestimated and the model is overfitting;\n",
+          "     a prior that pulls less hard towards high explained variance usually\n",
+          "     shrinks this gap without costing predictive performance.\n", sep = "")
+    }
+  }
+
   cat("\n-- comparison --\n")
   cmp <- loo::loo_compare(loos)
   print(cmp)

@@ -44,21 +44,33 @@ How badly, and from how few predictors, is worth stating in numbers. Standardise
 `exponential(1)` on sigma, and the coefficient priors below give these prior distributions of
 R²:
 
-| Slope prior | 5 predictors | 20 predictors |
-|---|---:|---:|
-| `normal(0, 1)` | 0.90 | 0.97 |
-| `normal(0, 0.5)` | 0.71 | 0.91 |
-| `R2D2(mean_R2 = 0.25)` | 0.12 | 0.14 |
+| Slope prior | 5 predictors | 20 predictors | 95th percentile at 20 |
+|---|---:|---:|---:|
+| `normal(0, 1)` | 0.90 | 0.97 | 1.00 |
+| `normal(0, 0.5)`, halved arbitrarily | 0.71 | 0.91 | 1.00 |
+| `normal(0, sqrt(0.3/k)·sd(y))`, scaled to a target | 0.37 | 0.37 | 0.99 |
+| `R2D2(mean_R2 = 0.25)` | 0.12 | 0.14 | 0.46 |
 
-Prior median R². With `normal(0, 1)` slopes and 20 predictors the 5th percentile is 0.66, so
-the model is a priori almost certain to explain most of the variance before it has seen
-anything.
+Prior median R², with the upper tail in the last column. With `normal(0, 1)` slopes and 20
+predictors the 5th percentile is 0.66, so the model is a priori almost certain to explain most
+of the variance before it has seen anything.
 
-Two things follow. This is not a many-predictor corner case – it is already severe at five
-predictors, which is a modest regression by any standard. And halving the prior scale does not
-fix it: going from `normal(0, 1)` to `normal(0, 0.5)` at 20 predictors moves the median from
-0.97 to 0.91, which is not a different claim in any way that matters. The R2D2 prior, by
-contrast, holds roughly steady as predictors are added, because that is what it is built to do.
+Three things follow. This is not a many-predictor corner case – it is already severe at five
+predictors, which is a modest regression by any standard.
+
+**Arbitrary rescaling does not help.** Halving `normal(0, 1)` to `normal(0, 0.5)` at 20
+predictors moves the median from 0.97 to 0.91, which is not a different claim in any way that
+matters, and leaves the upper tail at 1.00.
+
+**Scaling to a target does help, and is a legitimate option.** Setting the slope scale to
+sqrt(target R² / k) · sd(y) – the standard construction, and the one Gelman et al. use in
+their student-grades case study – brings the median to 0.37 for a target of 0.3, and holds it
+there as predictors are added: 0.37 at five predictors and 0.37 at twenty. If you want a
+normal prior and have a defensible target, this is how to set it, and the arithmetic is one
+line. What it does not control is the upper tail, which stays at 0.99: the prior still admits
+a model that explains everything. R2D2 controls the whole distribution rather than its centre,
+which is why it is the recommendation below, but the gap between the two is narrower than the
+gap between either and an unscaled prior.
 
 **It is not only about coefficients.** Anything that contributes to the variance of the linear
 predictor contributes here, and in a multilevel model the varying effects usually contribute

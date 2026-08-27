@@ -10,7 +10,7 @@
         "The response gives runnable R code computing the prior distribution of R-squared from the model's variance components on a sample_prior = \"only\" fit",
         "The response warns that bayes_R2() on a prior-only fit returns an artefact and must not be used for this",
         "The response mentions brms::R2D2() or setting the prior on R-squared directly",
-        "The response states or implies that reducing the coefficient scale does not solve the problem"
+        "The response distinguishes arbitrary rescaling, which does not solve the problem, from scaling to a target R-squared or setting the prior on R-squared directly, which does"
       ]
     },
     {
