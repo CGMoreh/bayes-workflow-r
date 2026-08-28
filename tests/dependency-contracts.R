@@ -200,6 +200,41 @@ if (is.na(backend)) {
           abs(br - 0.5) < 0.15 && true_r2 > br + 0.3
         })
 
+  check("standata()$prior_only still marks a prior-only fit",
+        "scripts/bw_loo_report.R (bw_is_prior_only, which refuses the optimism check)",
+        {
+          set.seed(3)
+          dk <- data.frame(y = rnorm(30), x = rnorm(30))
+          prk <- c(prior(normal(0, 1), class = "b"), prior(normal(0, 1), class = "Intercept"),
+                   prior(exponential(1), class = "sigma"))
+          fp <- brm(y ~ x, data = dk, prior = prk, sample_prior = "only", chains = 1,
+                    iter = 400, refresh = 0, silent = 2, backend = backend)
+          fq <- brm(y ~ x, data = dk, prior = prk, chains = 1, iter = 400,
+                    refresh = 0, silent = 2, backend = backend)
+          as.integer(brms::standata(fp)$prior_only) == 1L &&
+            as.integer(brms::standata(fq)$prior_only) == 0L
+        })
+
+  check("bayes_R2() stays on the response scale for a non-identity family",
+        "scripts/bw_loo_report.R (the optimism section, which must not mix scales)",
+        {
+          # var(mu)/(var(mu) + sigma^2) is only the response-scale R2 when sigma
+          # is stored on the response scale. For lognormal it is not, and the
+          # ratio runs far above the true figure - the bug this contract guards.
+          set.seed(4)
+          dk <- data.frame(x = rnorm(120))
+          dk$y <- rlnorm(120, meanlog = 1 + 0.3 * dk$x, sdlog = 0.5)
+          fl <- brm(y ~ x, data = dk, family = lognormal(), chains = 1, iter = 800,
+                    refresh = 0, silent = 2, backend = backend)
+          br <- median(brms::bayes_R2(fl, summary = FALSE)[, 1])
+          lr <- median(brms::loo_R2(fl, summary = FALSE)[, 1])
+          mu <- brms::posterior_epred(fl); sg <- as_draws_df(fl)$sigma
+          vm <- apply(mu, 1, var)
+          mixed <- median(vm / (vm + sg^2))
+          # bayes_R2 tracks loo_R2; the scale-mixing ratio does not
+          abs(br - lr) < 0.15 && mixed > br + 0.3
+        })
+
   check("brms default prior on class b is improper (blocks sample_prior = only)",
         "reference/priors.md, tests/dependency-contracts.R fixtures",
         inherits(tryCatch(update(brm(y ~ x, data = d, chains = 1, iter = 200,

@@ -22,6 +22,14 @@
 # Grouped cross-validation lives in bw_kfold_grouped() below, because it refits the
 # model K times and has no business running inside a routine report.
 
+# brms compiles one Stan program for both cases and switches on a data flag, so
+# the flag is the reliable marker. Returns NA when it cannot be read, and callers
+# treat NA as "not prior-only" rather than refusing on a failed lookup.
+bw_is_prior_only <- function(fit) {
+  tryCatch(isTRUE(as.integer(brms::standata(fit)$prior_only) == 1L),
+           error = function(e) NA)
+}
+
 bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
 
   fits <- list(...)
@@ -93,11 +101,24 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
   # second directly, which a comparison of elpd cannot.
   cat("\n-- optimism: in-sample against out-of-sample --\n")
   for (i in seq_along(fits)) {
+    # A prior-only fit has no in-sample fit to be optimistic about, and
+    # bayes_R2() on one is contaminated: it forms the residual against an
+    # outcome the prior never saw. Refuse rather than print a number.
+    if (isTRUE(bw_is_prior_only(fits[[i]]))) {
+      cat(sprintf("%-20s prior-only fit: no out-of-sample counterpart to compare
+", nms[i]))
+      cat("  -> for what a prior implies about explained variance, use bw_prior_check().
+")
+      next
+    }
     gap <- tryCatch({
-      mu   <- brms::posterior_epred(fits[[i]])
-      sig2 <- as.matrix(fits[[i]], variable = "sigma")^2
-      vmu  <- apply(mu, 1, stats::var)
-      r2_in  <- stats::median(vmu / (vmu + sig2))
+      # bayes_R2() forms the residual on the RESPONSE scale, so it stays
+      # comparable with loo_R2() whatever the family. Computing the ratio from
+      # var(mu) and sigma^2 instead mixes scales the moment the family stores
+      # sigma anywhere but the response scale: on a lognormal fit that returned
+      # 0.83 against a response-scale 0.20, a false overfitting flag. On a
+      # gaussian fit the two agree to three decimals, so nothing is lost.
+      r2_in  <- stats::median(brms::bayes_R2(fits[[i]], summary = FALSE)[, 1])
       r2_loo <- stats::median(brms::loo_R2(fits[[i]], summary = FALSE)[, 1])
       c(r2_in, r2_loo, r2_in - r2_loo)
     }, error = function(e) NULL)
