@@ -16,10 +16,11 @@
 # listed rather than judged, because a reader has to hold the claim against the
 # output. It is the class that produced the error this check exists for.
 
-# Matching is rounding-tolerant in the direction that matters: a draft's 0.30
-# matches an output 0.2984, because the draft states two decimals and rounding the
-# output to two gives the draft's figure. A draft carrying more precision than any
-# output has does not match, which is the correct answer.
+# Matching is tolerant of the draft's own rounding, and only of that. A figure
+# matches an output value within half a unit of its last stated place, so a
+# draft's 0.30 matches an output 0.2984 and its 0.481 matches an output 0.4805.
+# A draft carrying more precision than any output has does not match, which is
+# the correct answer.
 
 br_quantifiers <- c(
   "all", "none", "no other", "no more", "every", "never", "always", "any",
@@ -115,7 +116,10 @@ br_numbers_in <- function(lines, prose = TRUE) {
     prev     <- sub("^.*[^[:alpha:]]", "", prev)
     is_ref   <- prev %in% br_structural
     is_width <- grepl(br_width_follows, tolower(d$after))
-    d <- d[!is_year & !is_ref & !is_width, , drop = FALSE]
+    # a seed is stated so the analysis can be repeated, not because anything
+    # computed it, so it is never in the output and always reads as an orphan
+    is_seed  <- grepl("seed", tolower(d$before))
+    d <- d[!is_year & !is_ref & !is_width & !is_seed, , drop = FALSE]
   }
   d[, c("line", "text", "value", "digits", "pct"), drop = FALSE]
 }
@@ -150,11 +154,17 @@ br_match_one <- function(value, digits, pct, pool) {
   # decimals rounds it to 1 and matches any pool holding a 1
   cand <- list(list(v = value, d = digits))
   if (pct) cand <- c(cand, list(list(v = value / 100, d = digits + 2L)))
+  # a draft's figure matches an output value when the two are within half a unit
+  # of the draft's last stated place: 0.481 is consistent with an output 0.4805.
+  # Rounding both sides instead fails exactly at that boundary, because 0.4805 is
+  # held as 0.48049... and rounds down - a false orphan on a correctly rounded
+  # number, which is the first thing this check got wrong on a real report.
+  tol <- function(d) 0.5 * 10^(-d) + 1e-9
   for (k in cand) {
-    if (any(round(pool, k$d) == round(k$v, k$d))) return("matched")
+    if (any(abs(pool - k$v) <= tol(k$d))) return("matched")
   }
   for (k in cand) {
-    if (any(round(abs(pool), k$d) == round(abs(k$v), k$d))) return("sign")
+    if (any(abs(abs(pool) - abs(k$v)) <= tol(k$d))) return("sign")
   }
   "orphan"
 }
