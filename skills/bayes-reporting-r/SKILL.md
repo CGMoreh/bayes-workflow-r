@@ -1,18 +1,17 @@
 ---
 name: bayes-reporting-r
 description: >-
-  Write up a Bayesian analysis for a journal, so that the workflow that produced the estimates
-  is visible in the paper rather than buried in an appendix. Covers the methods section stage by
-  stage, wording for priors and prior justification, reporting convergence and predictive
-  checks without a diagnostic log, reporting posteriors without
-  significance thresholds, what belongs in the main text against the supplement,
-  assembling a workflow appendix from the analysis log, and phrasing that reads as social
-  science rather than as statistics. Use when drafting or revising the methods or results
-  section of a paper reporting Bayesian estimates; when a reviewer challenges the priors or
-  the choice of a Bayesian analysis itself and the defence has to be written into a response
-  memo or a robustness paragraph; when converting an analysis notebook into a manuscript; or when deciding which
-  checks to report. For running the analysis use
-  bayes-workflow-r; for defining the quantity being reported use bayes-estimands-r.
+  Write up a Bayesian analysis for a journal, so the workflow behind the estimates is visible in
+  the paper rather than buried in an appendix. Covers the methods section stage by stage, wording
+  for priors and their justification, reporting posteriors without significance thresholds, what
+  belongs in the main text against the supplement, building a workflow appendix from the analysis
+  log, checking a draft's numbers against the output behind them, and phrasing that reads as
+  social science rather than statistics. Use when drafting or revising the methods or results
+  section of a paper reporting Bayesian estimates; when a reviewer challenges the priors or the
+  choice of a Bayesian analysis and the defence goes into a response memo or robustness paragraph;
+  when converting an analysis notebook into a manuscript; when checking that a draft's numbers
+  trace to the output behind them; or when deciding which checks to report. For running the
+  analysis use bayes-workflow-r; for the quantity reported use bayes-estimands-r.
 license: MIT
 compatibility: Designed for manuscripts written in Quarto or R Markdown, with analyses fitted using brms.
 metadata:
@@ -159,9 +158,52 @@ structure the appendix needs. Convert it by:
 | `reference/reviewer-responses.md` | Answering the standard objections: priors-drove-it, n-too-small, why-Bayesian-at-all, each with the evidence to generate, memo text and the manuscript change |
 | `reference/appendix-and-log.md` | Keeping a convertible workflow log and assembling the supplementary appendix from it |
 
-One bundled script: `scripts/br_appendix.R` converts a `bayes-workflow-log.md` into a
+Two bundled scripts. `scripts/br_appendix.R` converts a `bayes-workflow-log.md` into a
 Quarto appendix skeleton with a stage-coverage checklist –
 `Rscript "${CLAUDE_SKILL_DIR}/scripts/br_appendix.R" bayes-workflow-log.md appendix-workflow.qmd`.
+`scripts/br_check_numbers.R` checks a finished draft against the output behind it –
+`Rscript "${CLAUDE_SKILL_DIR}/scripts/br_check_numbers.R" manuscript.qmd output/`.
+
+## Checking the draft against the output
+
+Before a draft goes anywhere, every number in it should trace to a value in the analysis output,
+and every quantified claim that carries no number should be held against the table it summarises.
+The second half of that is the one that gets skipped, and it is where the damage is.
+
+The failure worth having in mind came out of testing these skills. A report recommended collecting
+three predictors rather than four, and the recommendation rested on one sentence: beyond the first
+three, "no other predictor reaches half the folds by size eight". The `cv_proportions` table
+printed four lines above it gave one of the excluded predictors at five folds out of five and
+another at four out of five. There is no number in the offending sentence to check, the table and
+the sentence sit on the same page, and the draft reads as internally consistent throughout. A
+reviewer would have to redo the comparison by hand to find it, and the analyst did not.
+
+So the check has two passes:
+
+1. **Numbers.** Each figure in the prose either appears in the saved output, at the precision the
+   prose states, or it does not. One that does not is a typo, a value carried over from a
+   superseded fit, or something nobody computed.
+2. **Number-free quantification.** Sentences containing "all", "none", "no other", "only", "the
+   largest", "more than half" and their relatives assert something about a distribution or a table
+   while giving nothing to match against. Each has to be read next to the output behind it.
+
+`scripts/br_check_numbers.R` does the first pass mechanically and lists the second for reading:
+
+```r
+source("path/to/br_check_numbers.R")
+br_check_numbers("manuscript.qmd", outputs = "output/")
+```
+
+It ignores code chunks, YAML, maths, citation years, superscripts, cross-references, and interval
+widths such as "the 95% interval", which are conventions chosen in advance rather than results.
+Matching is tolerant of rounding in one direction only: a draft's 0.30 matches an output 0.2984,
+while a draft's 0.2984 does not match an output that only ever printed 0.30.
+
+The check is worth only as much as the output you saved. Where an analysis printed its results to
+a console that is now gone, most of the draft comes back untraceable, and that finding is about
+the analysis rather than about the draft. Capture each stage's printing to a file as you go –
+`sink()`, `capture.output()`, or a Quarto notebook that keeps its results – so that there is
+something for the draft to be checked against later.
 
 ## A note on reproducibility statements
 

@@ -1,6 +1,6 @@
 {
   "skill_name": "bayes-reporting-r",
-  "notes": "Iteration-2 suite. Iteration 1 retired three cases the unassisted model handled completely (the weak-likelihood null, text-against-supplement placement, threshold-free reporting) and kept the two that touched the skill's structure. New cases target the reference content added since: the why-Bayesian objection, where the anti-pattern is answering with philosophy, and the log-to-appendix conversion, where the skill carries a scaffolder and a stage-coverage checklist.",
+  "notes": "Iteration-2 suite. Iteration 1 retired three cases the unassisted model handled completely (the weak-likelihood null, text-against-supplement placement, threshold-free reporting) and kept the two that touched the skill's structure. New cases target the reference content added since: the why-Bayesian objection, where the anti-pattern is answering with philosophy, and the log-to-appendix conversion, where the skill carries a scaffolder and a stage-coverage checklist. Case 5 was added after the blind validation, where the single serious analytical error across five runs was a recommendation resting on a number-free sentence that the report's own printed table contradicted. It is the class of error a numbers check cannot reach, so the skill lists such sentences rather than trying to grade them.",
   "evals": [
     {
       "id": 1,
@@ -47,6 +47,18 @@
         "The FAILED regional check remains visible as the reason m2 exists, rather than being smoothed into a success story",
         "The appendix includes a stage-coverage device - a checklist or table mapping workflow stages to where each is reported",
         "The appendix includes a software or session-information element"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check this results paragraph before I submit it. The projpred output it rests on is pasted underneath.\n\n\"The reference model's leave-one-out R2 is 0.201 [0.138, 0.261]. Beyond the first three predictors, no other predictor reaches half the folds by size eight, so we recommend that schools collect the three items only: prior failures, school support, and mother's education.\"\n\n> cv_proportions(rk)\n     failures schoolsup Medu goout studytime absences famsup romantic\n[1,]      1.0       0.0  0.0   0.0       0.0      0.0    0.0      0.0\n[2,]      0.0       1.0  0.0   0.0       0.0      0.0    0.0      0.0\n[3,]      0.0       0.0  0.6   0.2       0.2      0.0    0.0      0.0\n[4,]      0.0       0.0  0.2   0.6       0.2      0.0    0.0      0.0\n[5,]      0.0       0.0  0.2   0.2       0.6      0.0    0.0      0.0\n[6,]      0.0       0.0  0.0   0.0       0.0      0.6    0.2      0.2\n[7,]      0.0       0.0  0.0   0.0       0.0      0.2    0.6      0.2\n[8,]      0.0       0.0  0.0   0.0       0.0      0.2    0.2      0.6\n\n> loo_R2(ref)\n   Estimate Est.Error  Q2.5 Q97.5\nR2    0.201     0.031 0.138 0.261",
+      "expected_output": "The paragraph's numerals all check out against the output, and its one number-free sentence contradicts the table directly above it: goout reaches 0.6 of the folds at size four and studytime 0.6 at size five, both above half. The three-item recommendation rests on that sentence, so it has to be re-derived from the table rather than reworded.",
+      "assertions": [
+        "The response identifies that the claim no other predictor reaches half the folds is contradicted by the pasted output, naming goout or studytime as a predictor that does",
+        "The response states that the three-item recommendation depends on the contradicted sentence and so does not hold as written",
+        "The response distinguishes a claim that quantifies without giving a number from one carrying a figure, noting that matching the draft's numbers against the output would not have caught this",
+        "The response confirms that the numerals actually present - 0.201, 0.138, 0.261 - do trace to the output, rather than treating the whole paragraph as unsupported",
+        "The response does NOT check only the numerals and pronounce the paragraph consistent with its output"
       ]
     }
   ]

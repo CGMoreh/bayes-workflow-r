@@ -22,7 +22,7 @@ publish the analysis rather than only run it.
 |---|---|
 | **bayes-workflow-r** | The loop. Priors and what they imply, prior predictive simulation, treating MCMC failure as a modelling problem, posterior predictive checks that name the next model, LOO comparison with pointwise attribution, power-scaling sensitivity, design calibration by simulation |
 | **bayes-estimands-r** | The quantity the analysis is about. Stating the estimand before fitting, sample against population average effects, poststratifying posterior draws to a target population, causal contrasts by simulating counterfactual assignment, direct and indirect effects through a mediator |
-| **bayes-reporting-r** | The write-up. The methods section stage by stage, wording for priors and sensitivity, reporting posteriors without significance thresholds, what belongs in the text against the supplement, building a workflow appendix from the analysis log |
+| **bayes-reporting-r** | The write-up. The methods section stage by stage, wording for priors and sensitivity, reporting posteriors without significance thresholds, what belongs in the text against the supplement, building a workflow appendix from the analysis log, checking a finished draft's numbers against the output behind them |
 
 Each works on its own. Install one, two or all three.
 
@@ -44,6 +44,11 @@ Each works on its own. Install one, two or all three.
   the sample.
 - **Design calibration at the sample size you actually have**, reporting coverage and sign-error
   rate rather than only a recovery rate.
+- **A check on the draft, not only on the analysis.** Every number in a write-up should trace
+  to a value in the output behind it, and the sentences that quantify without giving a number –
+  "no other predictor reaches half the folds" – are the ones that can contradict the table
+  printed above them and still read as consistent. The reporting skill checks the first
+  mechanically and lists the second for reading.
 
 ## Install
 
@@ -164,6 +169,29 @@ the reference material carries numbers someone measured rather than numbers some
 
 : Assertion pass rate across the 16 iteration-two eval cases, each run once with and once without the skill available. Iteration one (18 broader cases): 1.00 against 0.89.
 ```
+
+### What that number does and does not cover
+
+The eval cases are single targeted questions – someone asks whether a prior is weakly
+informative, or how a sensitivity check should be reported, and acts on the reply. That is the
+situation +0.30 describes, and it is the situation these skills are built for.
+
+A second test put them somewhere else. Two agents were given the same dataset and the same open
+question, one with the skills and one without, and worked for hours without supervision; eight
+checks were fixed in advance, graded against a published case study rerun on the same machine.
+Seven tied, and the eighth went to the unassisted agent. Repeating the exercise with a much
+shorter brief produced five analyses of the same data, four of which recovered the published
+answer, with no ordering by whether the skills were present. Given hours and an open question, a
+capable model already runs most of this workflow unaided, and the wording of the brief moved the
+result more than the skills did.
+
+Both findings hold at once, because they describe different situations. Reference material that
+is correct in its details changes a fast answer, where there is no time to re-derive anything,
+and changes an unhurried analysis much less. What that blind test did produce, and what a fast
+answer now benefits from, are two measurements that were not previously written down anywhere:
+how much a selection refitted on its own chosen predictors flatters itself against a
+cross-validated search, and how far `projpred::suggest_size()` moves when only the fold scheme
+changes. Both are in `skills/bayes-workflow-r/reference/comparison.md`.
 
 ## Maintenance
 

@@ -70,5 +70,13 @@
   {
     "query": "Turn my analysis log into a supplementary workflow appendix for the Quarto manuscript.",
     "should_trigger": true
+  },
+  {
+    "query": "Before I submit, can you check that the numbers in my results section actually match the model output I saved?",
+    "should_trigger": true
+  },
+  {
+    "query": "My draft says no other predictor reaches half the folds. How do I verify a claim like that against the projpred output?",
+    "should_trigger": true
   }
 ]
