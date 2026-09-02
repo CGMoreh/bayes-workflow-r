@@ -77,10 +77,38 @@ m2 <- add_criterion(m2, "loo")
 loo_compare(m1, m2)
 ```
 
-Read `elpd_diff` against `se_diff`. A difference smaller than about twice its standard error is
-not evidence of anything; report the models as indistinguishable in predictive terms rather
-than picking a winner. The comparison is also on a log scale with no natural units, so an
-`elpd_diff` of 4 means little in isolation.
+Read `elpd_diff` against `se_diff`, and report the ratio rather than a verdict at a threshold.
+The two-standard-error rule is a convention, and collapsing a comparison into "distinguishable
+or not" discards what a reader needs, which is the same objection this plugin's reporting skill
+raises against reading a posterior interval as a yes or no. The comparison is on a log scale
+with no natural units, so an `elpd_diff` of 4 means little in isolation.
+
+The ratio converts to a probability under a normal approximation:
+
+```r
+cmp <- loo_compare(m1, m2)
+pnorm(abs(cmp[2, "elpd_diff"]) / cmp[2, "se_diff"])   # P(the second model predicts worse)
+```
+
+**Then check whether that probability survives its own leading cases.** It comes from a normal
+approximation to a sum, and the pointwise differences behind that sum are routinely heavy-tailed
+- excess kurtosis above 20 is ordinary. Kurtosis on its own is not worth reporting, because it is
+large in plenty of comparisons whose answer is not in doubt. What matters is whether the
+probability moves:
+
+```r
+pw <- loo(m1)$pointwise[, "elpd_loo"] - loo(m2)$pointwise[, "elpd_loo"]
+p_full  <- pnorm(abs(sum(pw)) / (sqrt(length(pw)) * sd(pw)))
+v       <- pw[-order(abs(pw), decreasing = TRUE)[1:3]]
+p_after <- pnorm(abs(sum(v)) / (sqrt(length(v)) * sd(v)))
+```
+
+`se_diff` is exactly `sqrt(n) * sd(pw)`, so the second line reproduces what `loo_compare()`
+reports and the fourth recomputes it without the three most influential observations. On the
+book's roaches comparison of a zero-inflated model with and without the treatment term, that
+moves the probability from 0.96 to 1.00 across three of 262 apartments. Where it moves, quote
+`elpd_diff` and `se_diff`, say the probability is indicative, and find out what is unusual about
+those cases - which is worth more than the probability was.
 
 Check `loo(m1)$diagnostics$pareto_k`. Values above 0.7 mean the importance-sampling
 approximation has failed for those observations, and the LOO estimate is unreliable until they

@@ -250,6 +250,22 @@ if (is.na(backend)) {
                                  refresh = 0, silent = 2),
                           error = function(e) e), "error"))
 
+  check("loo_compare()'s se_diff is sqrt(n) times the sd of the pointwise differences",
+        "scripts/bw_loo_report.R and reference/comparison.md (the leave-out probability check)",
+        {
+          set.seed(21)
+          dk <- data.frame(x = rnorm(80), z = rnorm(80))
+          dk$y <- rnorm(80, 0.5 * dk$x)
+          f1 <- brm(y ~ x, data = dk, chains = 1, iter = 800, refresh = 0,
+                    silent = 2, backend = backend)
+          f2 <- brm(y ~ x + z, data = dk, chains = 1, iter = 800, refresh = 0,
+                    silent = 2, backend = backend)
+          l1 <- loo(f1); l2 <- loo(f2)
+          cp <- loo::loo_compare(list(a = l1, b = l2))
+          pw <- l1$pointwise[, "elpd_loo"] - l2$pointwise[, "elpd_loo"]
+          abs(cp[2, "se_diff"] - sqrt(length(pw)) * sd(pw)) < 1e-6
+        })
+
   check("a loo object carries p_loo in $estimates and one pareto_k per observation",
         "scripts/bw_loo_report.R (the effective-parameters section and the k counts)",
         {

@@ -224,18 +224,52 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
   cmp <- loo::loo_compare(loos)
   print(cmp)
 
+  best  <- rownames(cmp)[1]
+  other <- rownames(cmp)[2]
+  pw    <- loos[[best]]$pointwise[, "elpd_loo"] - loos[[other]]$pointwise[, "elpd_loo"]
+  names(pw) <- rows[[1]]
+
   ed <- cmp[2, "elpd_diff"]; se <- cmp[2, "se_diff"]
-  cat(sprintf("\nelpd_diff %.1f against se_diff %.1f: ", ed, se))
-  if (se > 0 && abs(ed) < 2 * se) {
-    cat("within twice its standard error.\n")
-    cat("  -> report the models as indistinguishable in predictive terms rather than\n",
-        "     picking a winner.\n", sep = "")
-  } else if (se == 0) {
-    cat("the standard error of the difference is zero.\n")
+  if (se == 0) {
+    cat("\nthe standard error of the difference is zero.\n")
     cat("  -> the two fits give identical pointwise values. Check they are not the same\n",
         "     model, or the same object passed twice.\n", sep = "")
   } else {
-    cat("larger than twice its standard error.\n")
+    # Report the quantity rather than a verdict at a threshold. A difference is
+    # not a decision, and collapsing it to "distinguishable or not" throws away
+    # what the reader needs - the same move this plugin's reporting skill refuses
+    # to make for a posterior, and there is no reason elpd deserves worse.
+    cat(sprintf("\nelpd_diff %.1f against se_diff %.1f: %.1f standard errors.\n",
+                ed, se, abs(ed) / se))
+    p_norm <- stats::pnorm(abs(ed) / se)
+    cat(sprintf("  P(%s predicts worse) = %.2f under a normal approximation.\n",
+                other, p_norm))
+
+    # That probability comes from a normal approximation to a sum, and the sum is
+    # over pointwise differences that are routinely heavy-tailed - excess kurtosis
+    # above 20 is ordinary here. Kurtosis on its own is the wrong thing to report,
+    # because it is large in comparisons whose answer is not in doubt. What matters
+    # is whether the probability MOVES, so drop the three most influential cases
+    # and recompute it. On the book's roaches comparison that shifts 0.96 to 1.00,
+    # which is the sensitivity the chapter warns about, stated as a number.
+    p_after <- tryCatch({
+      if (length(pw) < 20L) NA_real_ else {
+        v <- pw[-order(abs(pw), decreasing = TRUE)[1:3]]
+        stats::pnorm(abs(sum(v)) / (sqrt(length(v)) * stats::sd(v)))
+      }
+    }, error = function(e) NA_real_)
+
+    if (!is.na(p_after) && abs(p_after - p_norm) > 0.01) {
+      cat(sprintf("  Dropping the three most influential cases moves it to %.2f.\n", p_after))
+      cat("  -> the probability rests on a few observations, so quote elpd_diff and\n",
+          "     se_diff and treat it as indicative. Naming those cases and saying what\n",
+          "     is unusual about them is worth more than the probability is.\n", sep = "")
+    } else if (abs(ed) < 2 * se) {
+      cat("  -> under two standard errors. The conventional reading is that the models\n",
+          "     are not distinguishable in predictive terms; the probability above is\n",
+          "     the same evidence without the threshold, and is worth reporting instead.\n",
+          sep = "")
+    }
   }
 
   # The diagnostics above and this verdict are about the same numbers, and a
@@ -258,12 +292,8 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
         "  treat the comparison as suggestive and say so in the write-up.\n", sep = "")
   }
 
-  # --- where does the difference come from?
-  best  <- rownames(cmp)[1]
-  other <- rownames(cmp)[2]
-  pw    <- loos[[best]]$pointwise[, "elpd_loo"] - loos[[other]]$pointwise[, "elpd_loo"]
-  names(pw) <- rows[[1]]
-
+  # --- where does the difference come from? pw was formed above, because the
+  # probability check needs it too
   cat("\n-- pointwise attribution --\n")
   k <- min(top_n, length(pw))
 
