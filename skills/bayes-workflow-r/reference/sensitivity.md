@@ -28,6 +28,14 @@ powerscale_plot_quantities(fit, variable = "b_x1")  # summaries against alpha
 The table gives, per variable, a `prior` and a `likelihood` sensitivity magnitude and a
 `diagnosis` string. Larger means more sensitive; the default threshold is 0.05.
 
+**If you write your own alpha loop, pass `resample = TRUE`.** `priorsense::powerscale()` defaults
+to `resample = FALSE`, in which case it returns the original draws carrying importance weights
+rather than draws from the power-scaled posterior. Summarising those draws without using the
+weights gives the same numbers at every alpha, so the loop appears to run, prints a tidy table,
+and reports no sensitivity anywhere - including where there is a great deal. The functions above
+handle the weighting internally and are unaffected; only a hand-rolled loop over `powerscale()`
+hits this.
+
 | `prior` | `likelihood` | Diagnosis string emitted | What it means |
 |---|---|---|---|
 | high | high | `potential prior-data conflict` | Prior and data disagree. Sometimes the prior is wrong; sometimes the data are genuinely surprising. Either way it needs thought, not a wider prior |

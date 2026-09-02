@@ -57,6 +57,13 @@ check("loo exports kfold_split_grouped() for leave-one-group-out",
       "scripts/bw_loo_report.R, reference/comparison.md",
       is.function(loo::kfold_split_grouped))
 
+check("priorsense::powerscale() still defaults resample to FALSE",
+      "reference/sensitivity.md (the warning about hand-rolled alpha loops)",
+      {
+        f <- formals(priorsense:::powerscale.default)
+        "resample" %in% names(f) && isFALSE(eval(f$resample))
+      })
+
 check("priorsense exports predictions_as_draws() taking a predict_fn",
       "scripts/bw_sensitivity.R, reference/reviewer-responses.md",
       has_arg_of(priorsense::predictions_as_draws, "predict_fn"))
