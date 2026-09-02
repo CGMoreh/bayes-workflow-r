@@ -30,6 +30,19 @@ bw_is_prior_only <- function(fit) {
            error = function(e) NA)
 }
 
+# p_loo means nothing on its own; it means something against the number of
+# parameters the model actually has. Counting brms's stored variables and
+# dropping the derived and raw ones reproduces the counts a chapter would quote:
+# 4 for a four-term Poisson, 5 with a shape parameter, 267 for the same Poisson
+# with one varying intercept per observation. Returns NA rather than guessing.
+bw_n_parameters <- function(fit) {
+  v <- tryCatch(brms::variables(fit), error = function(e) NULL)
+  if (is.null(v)) return(NA_integer_)
+  # z_ and L_ are the raw standardised group effects behind r_, and counting both
+  # doubles every varying term; lprior and lp__ are not parameters at all
+  length(v[!grepl("^(lp__|lprior|z_|L_|Lrescor|Intercept)", v)])
+}
+
 bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
 
   fits <- list(...)
@@ -83,14 +96,51 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
          "size. Refit every model on one shared complete-case subset.", call. = FALSE)
   }
 
+  # recorded rather than only printed: the comparison further down has to be able
+  # to say that it rests on an estimate these diagnostics called unreliable
+  n_obs <- length(loos[[1]]$diagnostics$pareto_k)
+  bad_k <- integer(length(loos))
+
   cat("\n-- Pareto k diagnostics --\n")
   for (i in seq_along(loos)) {
-    k   <- loos[[i]]$diagnostics$pareto_k
-    bad <- sum(k > 0.7)
-    cat(sprintf("%-20s max k %.2f, %d above 0.7\n", nms[i], max(k), bad))
-    if (bad > 0) {
+    k        <- loos[[i]]$diagnostics$pareto_k
+    bad_k[i] <- sum(k > 0.7)
+    cat(sprintf("%-20s max k %.2f, %d of %d above 0.7\n",
+                nms[i], max(k), bad_k[i], n_obs))
+    if (bad_k[i] > 0) {
       cat("  -> the LOO estimate is unreliable for those cases. Try\n",
           "     loo_moment_match(), or reloo() to refit without them.\n", sep = "")
+    }
+    if (bad_k[i] > 0.1 * n_obs) {
+      cat("  -> above roughly a tenth of the sample, moment matching often does not\n",
+          "     recover enough. A model carrying one varying intercept per\n",
+          "     observation is the standard case: leaving a point out moves its own\n",
+          "     intercept too far for any reweighting to bridge. Compare by K-fold\n",
+          "     instead - kfold(fit, K = 10), or bw_kfold_grouped() when the data are\n",
+          "     clustered - and treat the numbers below as provisional until you do.\n",
+          sep = "")
+    }
+  }
+
+  # p_loo against the parameter count is the first thing a misspecified model
+  # gives away, and it costs nothing: it is already inside every loo object.
+  cat("\n-- effective parameters --\n")
+  for (i in seq_along(loos)) {
+    p_loo <- loos[[i]]$estimates["p_loo", "Estimate"]
+    n_par <- bw_n_parameters(fits[[i]])
+    cat(sprintf("%-20s p_loo %.1f against %s parameters\n", nms[i], p_loo,
+                if (is.na(n_par)) "an unknown number of" else format(n_par)))
+    if (!is.na(n_par) && p_loo > 2 * n_par) {
+      cat("  -> p_loo far above the parameter count marks misspecification rather\n",
+          "     than flexibility. For counts the family is the usual cause: a\n",
+          "     Poisson fitted to overdispersed data produces exactly this.\n", sep = "")
+    } else if (p_loo > n_obs / 5) {
+      # only where p_loo has NOT already been read as misspecification: a
+      # four-parameter model returning a p_loo of 254 is not flexible, it is wrong
+      cat("  -> p_loo above a fifth of the sample marks a model flexible enough that\n",
+          "     leaving one observation out moves the posterior a long way. Expect\n",
+          "     the Pareto k to be bad, and prefer K-fold to importance sampling.\n",
+          sep = "")
     }
   }
 
@@ -118,21 +168,48 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
       # sigma anywhere but the response scale: on a lognormal fit that returned
       # 0.83 against a response-scale 0.20, a false overfitting flag. On a
       # gaussian fit the two agree to three decimals, so nothing is lost.
-      r2_in  <- stats::median(brms::bayes_R2(fits[[i]], summary = FALSE)[, 1])
-      r2_loo <- stats::median(brms::loo_R2(fits[[i]], summary = FALSE)[, 1])
-      c(r2_in, r2_loo, r2_in - r2_loo)
+      r2_in    <- stats::median(brms::bayes_R2(fits[[i]], summary = FALSE)[, 1])
+      r2_loo_d <- brms::loo_R2(fits[[i]], summary = FALSE)[, 1]
+      r2_loo   <- stats::median(r2_loo_d)
+      c(r2_in, r2_loo, r2_in - r2_loo,
+        mean(r2_loo_d <= min(r2_loo_d) + 1e-9))
     }, error = function(e) NULL)
     if (is.null(gap)) {
       cat(sprintf("%-20s not available for this family\n", nms[i]))
       next
     }
+    # loo_R2 collapses onto a bound whenever the leave-one-out residual variance
+    # exceeds the variance of the outcome, which is routine for an overdispersed
+    # count: on a roaches negative binomial 99% of the draws sat exactly at -1.
+    # Subtracting a floor from an in-sample figure turns that into an
+    # overfitting verdict on a model that is not overfitting, so refuse instead.
+    if (gap[4] > 0.5 || gap[2] <= 0) {
+      cat(sprintf("%-20s explained variance is not a usable summary here\n", nms[i]))
+      cat(sprintf("  %.0f%% of the loo_R2 draws sit at the same bound (median %.3f).\n",
+                  100 * gap[4], gap[2]))
+      cat("  -> judge this model by elpd and by predictive checks on the outcome's\n",
+          "     own scale. R2 answers a question this outcome does not support.\n",
+          sep = "")
+      next
+    }
     cat(sprintf("%-20s R2 %.3f in-sample, %.3f out-of-sample, gap %+.3f\n",
                 nms[i], gap[1], gap[2], gap[3]))
     if (gap[3] > 0.10) {
-      cat("  -> the in-sample fit outruns the out-of-sample fit substantially. The\n",
-          "     residual variance is being underestimated and the model is overfitting;\n",
-          "     a prior that pulls less hard towards high explained variance usually\n",
-          "     shrinks this gap without costing predictive performance.\n", sep = "")
+      cat("  -> the in-sample fit outruns the out-of-sample fit substantially, so the\n",
+          "     residual variance is being underestimated.\n", sep = "")
+      fam <- tryCatch(fits[[i]]$family$family, error = function(e) NA_character_)
+      # a prior is the right lever only where the outcome's spread is a free
+      # parameter; where the family fixes the mean-variance relation, the same
+      # gap comes from the family and no prior will close it
+      if (!is.na(fam) && fam %in% c("gaussian", "student", "skew_normal",
+                                    "lognormal", "exgaussian")) {
+        cat("     A prior that pulls less hard towards high explained variance usually\n",
+            "     shrinks the gap without costing predictive performance.\n", sep = "")
+      } else {
+        cat("     Check the family before the prior. A likelihood that cannot represent\n",
+            "     the dispersion in the outcome produces this same gap, and no prior\n",
+            "     closes it: the move is to a family that can.\n", sep = "")
+      }
     }
   }
 
@@ -159,6 +236,21 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
         "     model, or the same object passed twice.\n", sep = "")
   } else {
     cat("larger than twice its standard error.\n")
+  }
+
+  # The diagnostics above and this verdict are about the same numbers, and a
+  # report that prints them without connecting them invites the reader to act on
+  # the second having read the first. On the book's roaches comparison that is a
+  # 251-elpd margin at fourteen standard errors, resting on an estimate that was
+  # unreliable for 205 of 262 observations, and it reverses under K-fold.
+  if (any(bad_k > 0)) {
+    worst <- which.max(bad_k)
+    cat(sprintf("\n  Read against the diagnostics above: %s has %d of %d observations\n",
+                nms[worst], bad_k[worst], n_obs))
+    cat("  above k = 0.7, so this ranking rests on an estimate already called\n",
+        "  unreliable. The number of standard errors does not repair that. Moment\n",
+        "  match or reloo first; if enough k stay high, compare by K-fold and use\n",
+        "  that result instead of this one.\n", sep = "")
   }
 
   if (nrow(fits[[1]]$data) < 100) {

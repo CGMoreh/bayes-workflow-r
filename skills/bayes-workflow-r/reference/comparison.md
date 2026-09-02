@@ -91,6 +91,69 @@ loo_moment_match(m1, loo = loo(m1))   # cheaper first resort
 reloo(m1, loo = loo(m1), k_threshold = 0.7)   # actually refits, leaving out the bad points
 ```
 
+A diagnostic that is printed and then ignored is worse than no diagnostic, because the reader
+takes the number beside it at face value. An unreliable LOO estimate makes the *comparison*
+unreliable, however many standard errors the difference spans, and the size of `elpd_diff`
+carries no information about whether the estimate behind it can be trusted. Deal with the k
+values first, then read the comparison.
+
+## `p_loo` against the number of parameters
+
+`loo()` reports `p_loo`, the effective number of parameters the cross-validation implies. On its
+own it says nothing; read against the parameters the model actually has, it is the cheapest
+misspecification check available, and it is already computed:
+
+```r
+loo(m1)$estimates["p_loo", "Estimate"]
+```
+
+Two readings, and they point in different directions.
+
+**`p_loo` far above the parameter count means misspecification, not flexibility.** A model
+cannot have more effective parameters than real ones unless it is failing to describe the data.
+For counts the family is the usual cause: a Poisson fitted to overdispersed data produces
+exactly this. In the book's roaches case a four-parameter Poisson returns a `p_loo` of 275, and
+the negative binomial that replaces it returns 8.5 against five parameters.
+
+**`p_loo` above roughly a fifth of the sample means a model too flexible for importance
+sampling**, whatever its parameter count. Leaving one observation out moves the posterior
+further than reweighting can bridge. A varying intercept per observation is the standard case:
+267 parameters, `p_loo` of 166 on 262 observations, and 205 of those 262 observations above
+k = 0.7.
+
+## When importance sampling fails and moment matching is not enough
+
+`loo_moment_match()` is the first resort and it does not always work. Above roughly a tenth of
+the sample sitting above k = 0.7, expect it to fall short, and expect that most reliably for a
+model carrying one varying intercept per observation: leaving a point out moves its own
+intercept too far for any reweighting to reach. `reloo()` refits one model per bad point, which
+at a hundred bad points is not a serious option.
+
+K-fold is the way out, and it is cheap by comparison at ten refits:
+
+```r
+folds <- loo::kfold_split_random(K = 10, N = nrow(d))   # one split, shared by both models
+kcv1  <- kfold(m1, folds = folds)
+kcv2  <- kfold(m2, folds = folds)
+loo_compare(list(m1 = kcv1, m2 = kcv2))
+```
+
+Share the fold vector across the models being compared. Drawing a separate split per model adds
+variance to the difference for no reason.
+
+How much this matters, measured on the book's roaches models - a negative binomial against a
+varying-intercept Poisson, same fits, three schemes:
+
+| Method | `elpd_diff` | `se_diff` | What it says |
+|---|---:|---:|---|
+| PSIS-LOO, moment matched | 265.4 | 18.2 | varying-intercept Poisson better by 14.6 standard errors |
+| 10-fold CV, shared folds | 4.4 | 8.3 | no dependable difference |
+| WAIC | 309.4 | 18.3 | worse still |
+
+Importance sampling overstates the margin by about 261 elpd and turns an unresolved comparison
+into a decisive one. Nothing in the `elpd_diff` or the `se_diff` gives that away; only the
+Pareto k do, and only if they are allowed to qualify the result.
+
 ## Which observations drive the comparison
 
 An `elpd_diff` is a sum over observations, and sums hide their structure. A difference of 12
@@ -162,6 +225,10 @@ differ chiefly in how they handle a small number of unusual cases, and the next 
 is unusual about those cases.
 
 ## Clustered data needs a different cross-validation
+
+This is the second reason to reach for K-fold and it is unrelated to the first. Above, K-fold
+was a repair for a computation that had failed. Here it is the right scheme whatever the
+diagnostics say, because leave-one-out answers a question the paper is not asking.
 
 Leaving out one observation from a participant who contributed twenty is a weak test: the other
 nineteen carry most of the information about that participant, so the model predicts the held

@@ -243,6 +243,53 @@ if (is.na(backend)) {
                                  refresh = 0, silent = 2),
                           error = function(e) e), "error"))
 
+  check("a loo object carries p_loo in $estimates and one pareto_k per observation",
+        "scripts/bw_loo_report.R (the effective-parameters section and the k counts)",
+        {
+          set.seed(11)
+          dk <- data.frame(x = rnorm(60))
+          dk$y <- rpois(60, exp(0.5 + 0.3 * dk$x))
+          fk <- brm(y ~ x, data = dk, family = poisson(), chains = 1, iter = 600,
+                    refresh = 0, silent = 2, backend = backend)
+          lk <- loo(fk)
+          "p_loo" %in% rownames(lk$estimates) &&
+            "Estimate" %in% colnames(lk$estimates) &&
+            length(lk$diagnostics$pareto_k) == nrow(dk)
+        })
+
+  check("brms::variables() counts parameters the way bw_n_parameters() assumes",
+        "scripts/bw_loo_report.R (bw_n_parameters, which p_loo is read against)",
+        {
+          # the filter drops lp__, lprior, the centred Intercept and the raw z_/L_
+          # group effects; what is left is the count a chapter would quote - here
+          # an intercept, one slope and one varying intercept per group
+          set.seed(12)
+          dk <- data.frame(g = factor(rep(1:8, each = 5)), x = rnorm(40))
+          dk$y <- rnorm(40, 0.4 * dk$x)
+          fv <- brm(y ~ x + (1 | g), data = dk, chains = 1, iter = 600,
+                    refresh = 0, silent = 2, backend = backend)
+          v <- brms::variables(fv)
+          n <- length(v[!grepl("^(lp__|lprior|z_|L_|Lrescor|Intercept)", v)])
+          # b_Intercept, b_x, sd_g__Intercept, sigma, 8 x r_g
+          n == 12L
+        })
+
+  check("loo_R2() can collapse onto a single bound on an overdispersed count",
+        "scripts/bw_loo_report.R (the optimism section, which must refuse it)",
+        {
+          # the behaviour the refusal guards: where the leave-one-out residual
+          # variance exceeds the variance of the outcome, the draws pile up on a
+          # bound and the median is not a value to subtract anything from
+          set.seed(13)
+          dk <- data.frame(x = rnorm(80))
+          dk$y <- rnbinom(80, mu = exp(1 + 0.2 * dk$x), size = 0.15)
+          fo <- brm(y ~ x, data = dk, family = negbinomial(), chains = 1,
+                    iter = 800, refresh = 0, silent = 2, backend = backend)
+          rr <- suppressWarnings(brms::loo_R2(fo, summary = FALSE)[, 1])
+          is.numeric(rr) && length(rr) > 100 &&
+            (mean(rr <= min(rr) + 1e-9) > 0.5 || median(rr) <= 0)
+        })
+
   check("posterior_linpred(transform = TRUE) gives the probability scale",
         "scripts/bw_prior_check.R (binomial event rate)",
         {

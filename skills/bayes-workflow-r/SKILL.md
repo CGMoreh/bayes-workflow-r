@@ -123,7 +123,7 @@ prints a report rather than modifying anything.
 | `scripts/bw_diagnose.R` | Convergence, divergences, treedepth, E-BFMI, and the triage that follows from each |
 | `scripts/bw_prior_check.R` | Prior predictive simulation including the implied prior on R² and, for binary families, the implied event rate |
 | `scripts/bw_sensitivity.R` | Power-scaling sensitivity for parameters and for the quantity of interest |
-| `scripts/bw_loo_report.R` | `bw_loo_report()` for LOO comparison with pointwise attribution, which refuses to compare models fitted to different rows; `bw_kfold_grouped()` for leave-one-group-out, which refits and is priced accordingly |
+| `scripts/bw_loo_report.R` | `bw_loo_report()` for LOO comparison with pointwise attribution, which refuses to compare models fitted to different rows, reports `p_loo` against the parameter count, and lets the Pareto k qualify the comparison instead of printing both and leaving them unconnected; `bw_kfold_grouped()` for leave-one-group-out, which refits and is priced accordingly |
 | `scripts/bw_recovery.R` | Design calibration: can this design at this sample size recover the effect you expect? |
 
 Each is callable from the shell on a cached fit – for example
