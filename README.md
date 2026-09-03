@@ -195,6 +195,15 @@ how much a selection refitted on its own chosen predictors flatters itself again
 cross-validated search, and how far `projpred::suggest_size()` moves when only the fold scheme
 changes. Both are in `skills/bayes-workflow-r/reference/comparison.md`.
 
+A third case study, run with four arms, said the same thing about the analysis more cleanly
+still: every arm, with or without the skills, reached all eight analysis checks and landed on
+the published answer. Where the arms did differ was on whether the write-up could be checked.
+The three arms with the skills traced every number in their reports to saved output; the arm
+without left one untraced. The arm with the workflow scheme produced a `WORKFLOW.md` in which
+every stage carrying an entry maps to a script that performed it, with no stage run in order to
+fill a node. That is the claim these skills can make about a whole analysis: they do not change
+what a capable model concludes, and they make what it did legible and checkable afterwards.
+
 ## Maintenance
 
 These skills call packages that move. `tests/dependency-contracts.R` asserts every package
