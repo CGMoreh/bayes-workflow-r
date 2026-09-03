@@ -64,13 +64,42 @@ bw_prior_check <- function(fit, newdata = NULL, chains = 2, iter = 2000,
 
   yrep <- brms::posterior_predict(fit_prior, newdata = newdata, ...)
 
+  # --- are the priors on the outcome's scale at all?
+  # Read before anything else. A prior whose predictive median sits a hundred
+  # times beyond the largest observed value, or a hundredth of the smallest, is
+  # almost always a prior chosen on one scale and applied on another: normal(250,
+  # 100) on an intercept is a reaction time in milliseconds on an identity link
+  # and e^250 on a log link. The book's sleep-study case does exactly this on
+  # purpose, and the R2 below cannot see it, so this check has to come first.
+  qy <- stats::quantile(as.vector(yrep), c(0.01, 0.5, 0.99), na.rm = TRUE)
+  y  <- tryCatch(as.numeric(brms::standata(fit)$Y), error = function(e) NULL)
+  off_scale <- FALSE
+  scale_ratio <- NA_real_
+  if (!is.null(y) && all(is.finite(y)) && is.finite(qy[2]) && max(abs(y)) > 0) {
+    scale_ratio <- qy[2] / max(abs(y))
+    off_scale   <- is.finite(scale_ratio) && (scale_ratio > 100 || scale_ratio < 0.01)
+  }
+
   # --- implied prior on explained variance
-  if ("sigma" %in% posterior::variables(draws)) {
+  if (off_scale) {
+    r2 <- NULL
+    cat(sprintf("%-32s not read: the priors sit off the outcome's scale, see below\n",
+                "implied prior R2"))
+  } else {
+  # sigma is the response-scale residual SD only under an identity link. On a
+  # lognormal fit it is the SD of log(y) set against a response-scale mu, and the
+  # ratio runs to 1.00 whatever the prior says: on the book's sleep-study case
+  # it returned 1.00 for an absurd prior and for the sensible replacement alike.
+  # Every other family forms its residual on the response scale from the
+  # predictive draws, which is what explained variance means there.
+  identity_sigma <- fam %in% c("gaussian", "student") &&
+    "sigma" %in% posterior::variables(draws)
+  if (identity_sigma) {
     var_res <- draws$sigma^2
     basis   <- "residual scale"
   } else {
     var_res <- apply(yrep - mu, 1, stats::var)
-    basis   <- "predictive spread"
+    basis   <- "predictive spread, response scale"
   }
   var_mu <- apply(mu, 1, stats::var)
   r2     <- var_mu / (var_mu + var_res)
@@ -99,6 +128,8 @@ bw_prior_check <- function(fit, newdata = NULL, chains = 2, iter = 2000,
     }
   }
 
+  }
+
   # --- what outcomes do the priors consider possible?
   if (fam %in% c("bernoulli", "binomial", "beta_binomial")) {
     # posterior_epred() returns the expected COUNT of successes when the model
@@ -119,9 +150,21 @@ bw_prior_check <- function(fit, newdata = NULL, chains = 2, iter = 2000,
           "     0 and 1. Tighten the intercept and slope priors, then check again.\n", sep = "")
     }
   } else {
-    qy <- stats::quantile(as.vector(yrep), c(0.01, 0.5, 0.99), na.rm = TRUE)
     cat(sprintf("%-32s q01 %.3g | median %.3g | q99 %.3g\n",
                 "prior predictive outcome", qy[1], qy[2], qy[3]))
+    if (!is.null(y) && all(is.finite(y))) {
+      cat(sprintf("%-32s min %.3g | median %.3g | max %.3g\n",
+                  "observed outcome", min(y), stats::median(y), max(y)))
+    }
+    if (off_scale) {
+      cat(sprintf("  -> the prior predictive median is 10^%.0f times the largest observed\n",
+                  log10(scale_ratio)))
+      cat("     value. A prior this far from the outcome's own scale almost always\n",
+          "     means its values were chosen on one scale and applied on another:\n",
+          "     normal(250, 100) on an intercept is a reaction time on an identity link\n",
+          "     and e^250 on a log link. Rewrite the priors on the scale the link puts\n",
+          "     them on, then run this check again.\n", sep = "")
+    }
     neg <- mean(as.vector(yrep) < 0, na.rm = TRUE)
     if (neg > 0.001) {
       cat(sprintf("%-32s %.1f%% of draws\n", "  outcome below zero", 100 * neg))

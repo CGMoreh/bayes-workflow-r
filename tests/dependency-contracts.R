@@ -266,6 +266,35 @@ if (is.na(backend)) {
           abs(cp[2, "se_diff"] - sqrt(length(pw)) * sd(pw)) < 1e-6
         })
 
+  check("on a lognormal fit, sigma is the spread of log(y), not of y",
+        "scripts/bw_prior_check.R (the residual-scale branch of the implied R2)",
+        {
+          # the behaviour the branch depends on: sigma tracks the per-draw SD of
+          # log(yrep) and sits nowhere near the SD of yrep itself, so using it as a
+          # response-scale residual sends the R2 to 1.00 regardless of the prior
+          set.seed(31)
+          dk <- data.frame(x = rnorm(100))
+          dk$y <- rlnorm(100, meanlog = 5 + 0.2 * dk$x, sdlog = 0.3)
+          fl <- brm(y ~ x, data = dk, family = lognormal(), chains = 1, iter = 800,
+                    refresh = 0, silent = 2, backend = backend)
+          sg <- median(as_draws_df(fl)$sigma)
+          yr <- brms::posterior_predict(fl, ndraws = 200)
+          sd_log <- median(apply(log(yr), 1, sd))
+          sd_raw <- median(apply(yr, 1, sd))
+          abs(sg - sd_log) / sd_log < 0.25 && sd_raw / sg > 20
+        })
+
+  check("standata()$Y returns the outcome of a univariate fit",
+        "scripts/bw_prior_check.R (the outcome-scale check against observed data)",
+        {
+          set.seed(32)
+          dk <- data.frame(y = rnorm(40, 10), x = rnorm(40))
+          fy <- brm(y ~ x, data = dk, chains = 1, iter = 400, refresh = 0,
+                    silent = 2, backend = backend)
+          Y <- brms::standata(fy)$Y
+          length(Y) == 40L && isTRUE(all.equal(as.numeric(Y), dk$y))
+        })
+
   check("a loo object carries p_loo in $estimates and one pareto_k per observation",
         "scripts/bw_loo_report.R (the effective-parameters section and the k counts)",
         {

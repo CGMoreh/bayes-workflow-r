@@ -47,6 +47,10 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
 
   fits <- list(...)
   nms  <- vapply(substitute(list(...))[-1], deparse, character(1))
+  # a name given in the call is the label the user chose; the deparsed
+  # expression is only the fallback for an unnamed argument
+  given <- names(fits)
+  if (!is.null(given)) nms[nzchar(given)] <- given[nzchar(given)]
   names(fits) <- nms
   stopifnot(length(fits) >= 1, all(vapply(fits, inherits, logical(1), "brmsfit")))
   requireNamespace("loo", quietly = TRUE)

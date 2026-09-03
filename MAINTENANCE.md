@@ -86,6 +86,27 @@ rough order of risk:
 - **`marginaleffects` `hypothesis` syntax** in `reference/contrasts.md`. This interface has
   changed before, and the contrast-of-contrasts recipe depends on it.
 
+- **`loo_R2()` collapsing onto a bound** on an overdispersed count, which `bw_loo_report.R`
+  now refuses rather than reads as an optimism gap. The refusal depends on that collapse
+  being detectable as a pile-up of draws at one value; a future brms that clamps or warns
+  differently would change what the guard sees. Contract: "loo_R2() can collapse onto a
+  single bound on an overdispersed count".
+- **`priorsense::powerscale(resample = FALSE)` as the default**, which `reference/sensitivity.md`
+  warns about for hand-written alpha loops. If priorsense changes the default the warning
+  becomes wrong rather than the code. Contract: "powerscale() still defaults resample to FALSE".
+- **`brms::standata(fit)$Y`** in `bw_prior_check.R`, for the observed outcome the prior
+  predictive is read against. Stan data is an internal layout. Contract: "standata()$Y returns
+  the outcome of a univariate fit".
+- **`se_diff` being `sqrt(n) * sd(pointwise difference)`**, which the leave-out probability
+  check in `bw_loo_report.R` recomputes for itself. Contract: "loo_compare()'s se_diff is sqrt(n)
+  times the sd of the pointwise differences".
+- **`brms::variables()` naming** – `lp__`, `lprior`, `z_`, `L_`, the centred `Intercept` – which
+  `bw_n_parameters()` filters to count parameters. A renamed internal would miscount. Contract:
+  "brms::variables() counts parameters the way bw_n_parameters() assumes".
+- **`sigma` on the log scale for a lognormal fit**, which is why `bw_prior_check.R` forms its
+  residual from the predictive draws for every family without an identity link. Contract: "on a
+  lognormal fit, sigma is the spread of log(y), not of y".
+
 ## What silent drift looks like
 
 Code breaking is the easy case: it errors, and the contracts catch it. The harder failure is
