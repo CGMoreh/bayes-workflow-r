@@ -6,7 +6,7 @@
 # Sourced by: bayes-workflow-r skill; call bw_loo_report(m1, m2), or bw_loo_report(m)
 #             for the single-model diagnostics and the optimism check alone
 # Author:     Chris Moreh
-# Last updated: 2026-08-27
+# Last updated: 2026-09-03
 ################################################################################
 
 # Models fitted to different rows cannot be compared. This happens silently whenever
@@ -88,16 +88,20 @@ bw_loo_report <- function(..., top_n = 10, data = NULL, annotate = NULL) {
 
   # second layer behind the row-name check: dplyr filtering resets tibble row
   # names, so two separately filtered samples of equal size can carry identical
-  # names over different observations. loo hashes the response; compare that.
-  yh <- vapply(loos, function(l) {
-    h <- attr(l, "yhash")
-    if (is.null(h)) NA_character_ else paste(as.character(h), collapse = "")
-  }, character(1))
-  if (!anyNA(yh) && length(unique(yh)) > 1L) {
-    stop("the models carry identical row names but their response vectors hash ",
-         "differently (loo's 'yhash'), so they were fitted to different observations. ",
-         "The usual route here is two separately filtered analytic samples of equal ",
-         "size. Refit every model on one shared complete-case subset.", call. = FALSE)
+  # names over different observations. Compare the response vectors themselves.
+  # loo's yhash is not the right instrument: a gaussian fit and a beta-binomial
+  # fit of the same counts on the same rows hash differently, because the
+  # trials() response is stored differently, and the guard then refused the one
+  # comparison the book's nabiximols case study is built around.
+  ys <- lapply(fits, function(f) {
+    tryCatch(as.numeric(brms::standata(f)$Y), error = function(e) NULL)
+  })
+  if (!any(vapply(ys, is.null, logical(1))) &&
+      !all(vapply(ys, function(y) isTRUE(all.equal(y, ys[[1]])), logical(1)))) {
+    stop("the models carry identical row names but their response vectors differ, ",
+         "so they were fitted to different observations. The usual route here is two ",
+         "separately filtered analytic samples of equal size. Refit every model on ",
+         "one shared complete-case subset.", call. = FALSE)
   }
 
   # recorded rather than only printed: the comparison further down has to be able

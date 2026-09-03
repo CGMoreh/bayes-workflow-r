@@ -172,9 +172,23 @@ if (is.na(backend)) {
         "scripts/bw_loo_report.R",
         !is.null(brms::add_criterion(fit, "loo")$criteria$loo))
 
-  check("loo objects carry a yhash attribute",
-        "scripts/bw_loo_report.R (response-identity guard)",
-        !is.null(attr(loo(fit), "yhash")))
+  check("standata()$Y agrees across families fitted to the same rows where yhash does not",
+        "scripts/bw_loo_report.R (the same-observations guard compares Y, not loo's yhash)",
+        {
+          # the behaviour the guard depends on: a gaussian and a beta-binomial fit of
+          # the same counts carry the same Y and different yhashes, so the hash would
+          # refuse a legitimate comparison and Y does not
+          set.seed(41)
+          dk <- data.frame(y = rbinom(60, 20, 0.3), n = 20, x = rnorm(60))
+          fg <- brm(y ~ x, data = dk, chains = 1, iter = 400, refresh = 0,
+                    silent = 2, backend = backend)
+          fb <- brm(y | trials(n) ~ x, data = dk, family = beta_binomial(), chains = 1,
+                    iter = 400, refresh = 0, silent = 2, backend = backend)
+          same_y <- isTRUE(all.equal(as.numeric(brms::standata(fg)$Y),
+                                     as.numeric(brms::standata(fb)$Y)))
+          hg <- attr(loo(fg), "yhash"); hb <- attr(loo(fb), "yhash")
+          same_y && !identical(hg, hb)
+        })
 
   check("loo_compare() errors on differing observation counts",
         "reference/comparison.md (the guard table)",

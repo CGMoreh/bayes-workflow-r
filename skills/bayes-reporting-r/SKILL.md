@@ -223,8 +223,9 @@ source("path/to/br_check_numbers.R")
 br_check_numbers("manuscript.qmd", outputs = "output/")
 ```
 
-It ignores code chunks, YAML, maths, citation years, superscripts, cross-references, and interval
-widths such as "the 95% interval", which are conventions chosen in advance rather than results.
+It ignores code chunks, YAML, maths, citation years, superscripts, cross-references, stated
+seeds, thresholds introduced by "above", "below", "at least" or "at most", and interval
+widths such as "the 95% interval": all of them chosen in advance rather than computed.
 Matching is tolerant of rounding in one direction only: a draft's 0.30 matches an output 0.2984,
 while a draft's 0.2984 does not match an output that only ever printed 0.30.
 

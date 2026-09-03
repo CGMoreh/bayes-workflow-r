@@ -5,7 +5,7 @@
 #             carry no number and so have to be checked by eye
 # Sourced by: bayes-reporting-r skill; call br_check_numbers()
 # Author:     Chris Moreh
-# Last updated: 2026-09-02
+# Last updated: 2026-09-03
 ################################################################################
 
 # Two failure modes, and only the first is mechanical. A number in the prose that
@@ -119,7 +119,13 @@ br_numbers_in <- function(lines, prose = TRUE) {
     # a seed is stated so the analysis can be repeated, not because anything
     # computed it, so it is never in the output and always reads as an orphan
     is_seed  <- grepl("seed", tolower(d$before))
-    d <- d[!is_year & !is_ref & !is_width & !is_seed, , drop = FALSE]
+    # a threshold - "ESS above 1500", "Pareto k below 0.7", "at least 200" - is the
+    # author's criterion, chosen rather than computed, and the same holds for
+    # it as for an interval width. Only the strict forms are skipped: "over" and
+    # "more than" also introduce results ("rises by more than 350") and stay
+    is_thr   <- grepl("(above|below|at least|at most|exceed(s|ed)?)[[:space:]]*$",
+                      tolower(d$before))
+    d <- d[!is_year & !is_ref & !is_width & !is_seed & !is_thr, , drop = FALSE]
   }
   d[, c("line", "text", "value", "digits", "pct"), drop = FALSE]
 }
