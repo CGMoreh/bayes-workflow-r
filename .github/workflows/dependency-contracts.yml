@@ -67,6 +67,9 @@ jobs:
       - name: Run dependency contracts
         run: Rscript tests/dependency-contracts.R
 
+      - name: Run the workflow scheme tests
+        run: Rscript tests/scheme-tests.R
+
       - name: Open an issue when a contract breaks
         if: failure() && github.event_name == 'schedule'
         uses: actions/github-script@v8     # v7 runs Node 20, now deprecated

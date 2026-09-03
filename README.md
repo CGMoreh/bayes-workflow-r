@@ -20,7 +20,7 @@ publish the analysis rather than only run it.
 
 | Skill | What it does |
 |---|---|
-| **bayes-workflow-r** | The loop. Priors and what they imply, prior predictive simulation, treating MCMC failure as a modelling problem, posterior predictive checks that name the next model, LOO comparison with pointwise attribution, power-scaling sensitivity, design calibration by simulation |
+| **bayes-workflow-r** | The loop. Priors and what they imply, prior predictive simulation, treating MCMC failure as a modelling problem, posterior predictive checks that name the next model, LOO comparison with pointwise attribution, power-scaling sensitivity, design calibration by simulation, and a workflow record (`WORKFLOW.md`) generated from the log and the files beside it, never edited by hand |
 | **bayes-estimands-r** | The quantity the analysis is about. Stating the estimand before fitting, sample against population average effects, poststratifying posterior draws to a target population, causal contrasts by simulating counterfactual assignment, direct and indirect effects through a mediator |
 | **bayes-reporting-r** | The write-up. The methods section stage by stage, wording for priors and sensitivity, reporting posteriors without significance thresholds, what belongs in the text against the supplement, building a workflow appendix from the analysis log, checking a finished draft's numbers against the output behind them |
 

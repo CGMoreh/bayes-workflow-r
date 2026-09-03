@@ -124,6 +124,7 @@ prints a report rather than modifying anything.
 | `scripts/bw_prior_check.R` | Prior predictive simulation including the implied prior on R² and, for binary families, the implied event rate |
 | `scripts/bw_sensitivity.R` | Power-scaling sensitivity for parameters and for the quantity of interest |
 | `scripts/bw_loo_report.R` | `bw_loo_report()` for LOO comparison with pointwise attribution, which refuses to compare models fitted to different rows, reports `p_loo` against the parameter count, and lets the Pareto k qualify the comparison instead of printing both and leaving them unconnected; `bw_kfold_grouped()` for leave-one-group-out, which refits and is priced accordingly |
+| `scripts/bw_scheme.R` | `bw_scheme()` writes `WORKFLOW.md` from the workflow log and the files beside it: where the analysis stands in the log's own words, the loop as the log walked it, and an index of entries, models and files by stage. It reads the log and the script banners and nothing else, never styles a stage by state, and quotes what comes next rather than proposing it; the parser is shared with the reporting skill's appendix scaffold |
 | `scripts/bw_recovery.R` | Design calibration: can this design at this sample size recover the effect you expect? |
 
 Each is callable from the shell on a cached fit – for example
@@ -148,6 +149,13 @@ Posterior predictive check on the group-level SDs failed for m2 (observed spread
 the predictive interval). m3 fixes it; 4 divergences remain, all in the sd_ parameters.
 Next: non-centred parameterisation is already brms default, so try tighter prior on sd.
 ```
+
+Models named `m1`, `m2` and so on in the log, and saved as `model-data/m<n>_<label>.rds`, are
+the ones the record and the appendix can join to their files. After appending an entry,
+regenerate `WORKFLOW.md` with `Rscript "${CLAUDE_SKILL_DIR}/scripts/bw_scheme.R"` from the
+project root and name its path once in the end-of-turn summary. The scheme indexes the log and
+the files beside it; it says nothing the log does not, and it is for the person reading the
+project rather than for the analysis.
 
 ## R style
 
