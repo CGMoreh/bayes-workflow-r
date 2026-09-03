@@ -68,6 +68,11 @@ br_strip_prose <- function(lines) {
       out[i] <- ""
       next
     }
+    # a Unicode minus (U+2212) or a non-breaking space before a number is what
+    # typeset prose carries; read both as their ASCII forms so a correct negative
+    # is not counted as an orphan
+    ln <- gsub("−", "-", ln)
+    ln <- gsub(" ", " ", ln)
     ln <- gsub("[`][^`]*[`]", " ", ln)             # inline code, including `r ...`
     ln <- gsub("[$][^$]*[$]", " ", ln)             # inline maths
     ln <- gsub("\\^[^^]*\\^", " ", ln)             # Quarto superscripts, e.g. R^2^
