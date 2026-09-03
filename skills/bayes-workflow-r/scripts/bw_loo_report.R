@@ -373,7 +373,22 @@ bw_kfold_grouped <- function(..., group, k_folds = 10, confirm = TRUE) {
   }
 
   folds <- loo::kfold_split_grouped(K = k_folds, x = group)
-  res   <- lapply(fits, \(f) brms::kfold(f, folds = folds))
+  # A fold refit can lose a chain to an initialisation failure - a wide random
+  # start overflows on a log-link count or a heavy-tailed outcome - and the fold
+  # then carries fewer draws than the rest, so brms fails combining them with
+  # "number of rows of matrices must match". Narrow inits avoid most of it and
+  # one retry covers the rest; two blind reanalyses gave up on this function
+  # before that was in place.
+  kfold_once <- function(f) {
+    for (attempt in 1:2) {
+      r <- try(brms::kfold(f, folds = folds, init = 0.2), silent = TRUE)
+      if (!inherits(r, "try-error")) return(r)
+    }
+    stop("K-fold failed twice on the same model, most likely a fold losing a chain ",
+         "at initialisation. Fit that fold by hand with kfold(fit, folds = folds, ",
+         "init = 0.1) and inspect the chain that fails.", call. = FALSE)
+  }
+  res   <- lapply(fits, kfold_once)
   names(res) <- nms
   print(loo::loo_compare(res))
   cat("\nCompare this against the leave-one-out ranking. A model that wins under LOO\n",
