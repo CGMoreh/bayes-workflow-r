@@ -5,13 +5,13 @@ description: >-
   the paper rather than buried in an appendix. Covers the methods section stage by stage, wording
   for priors and their justification, reporting posteriors without significance thresholds, what
   belongs in the main text against the supplement, building a workflow appendix from the analysis
-  log, checking a draft's numbers against the output behind them, and phrasing that reads as
-  social science rather than statistics. Use when drafting or revising the methods or results
-  section of a paper reporting Bayesian estimates; when a reviewer challenges the priors or the
-  choice of a Bayesian analysis and the defence goes into a response memo or robustness paragraph;
-  when converting an analysis notebook into a manuscript; when checking that a draft's numbers
-  trace to the output behind them; or when deciding which checks to report. For running the
-  analysis use bayes-workflow-r; for the quantity reported use bayes-estimands-r.
+  log, checking a draft's numbers against its output, and the results section in the book's own
+  interpretive register. Use when drafting or revising the methods or results section of a paper
+  reporting Bayesian estimates; when a reviewer challenges the priors or the choice of a Bayesian
+  analysis and the defence goes into a response memo or robustness paragraph; when converting an
+  analysis notebook into a manuscript; when checking that a draft's numbers trace to the output
+  behind them; or when deciding which checks to report. For running the analysis use bayes-
+  workflow-r; for the quantity reported use bayes-estimands-r.
 license: MIT
 compatibility: Designed for manuscripts written in Quarto or R Markdown, with analyses fitted using brms.
 metadata:
@@ -157,12 +157,41 @@ structure the appendix needs. Convert it by:
 | `reference/methods-templates.md` | Drafting a methods section: three complete worked templates – multilevel survey logistic, small-N repeated measures, overdispersed counts – each annotated sentence-by-stage |
 | `reference/reviewer-responses.md` | Answering the standard objections: priors-drove-it, n-too-small, why-Bayesian-at-all, each with the evidence to generate, memo text and the manuscript change |
 | `reference/appendix-and-log.md` | Keeping a convertible workflow log and assembling the supplementary appendix from it |
+| `reference/results-register.md` | Writing the results section in the interpretive register of the workflow book's own case studies: how a diagnostic becomes a sentence, how a result is stated, how model progression is narrated, what the prose refuses to claim |
+| `reference/results-templates.md` | Drafting a results section: three complete worked templates matching the methods templates, each annotated sentence-by-stage |
+| `reference/prose-discipline.md` | What to avoid while writing any of it: the hedging direction, the marks of machine prose, the vocabulary that reads as machine text, and why |
 
 Two bundled scripts. `scripts/br_appendix.R` converts a `bayes-workflow-log.md` into a
 Quarto appendix skeleton with a stage-coverage checklist –
 `Rscript "${CLAUDE_SKILL_DIR}/scripts/br_appendix.R" bayes-workflow-log.md appendix-workflow.qmd`.
 `scripts/br_check_numbers.R` checks a finished draft against the output behind it –
 `Rscript "${CLAUDE_SKILL_DIR}/scripts/br_check_numbers.R" manuscript.qmd output/`.
+
+## Writing the results section
+
+A results section in this register has four movements, in this order. The quantity the paper
+is about comes first, on the substantive scale, with its uncertainty and before any diagnostic
+is mentioned: a predicted probability, a ratio of expected counts, a rate per day, never a
+coefficient on a link scale. Then the checks that licence it, each read as what it could see
+and, in the same sentence, what it could not: a passed check is the absence of a visible
+problem, not a confirmation. Then the model sequence that produced it, with the failures kept
+and each failure joined to the model that replaced it. Then what the analysis cannot settle,
+stated beside the claim it qualifies rather than in a closing section where it can be skipped.
+
+The comparison sentence is where drafts most often leave the register. The difference and its
+standard error are reported; a probability derived from them is reported only if it survives
+dropping the few most influential observations, and is otherwise withdrawn in the sentence
+that computed it; and a model that cross-validation prefers is not thereby called adequate.
+Where several models cannot be separated, the range of the estimate across them is the
+uncertainty the reader is given, not one model's interval.
+
+`reference/results-register.md` describes the register from the book's own case studies, with
+the moves attributed. `reference/results-templates.md` gives three worked sections in it, one
+per design. Both write for a sociology reader: a term that would appear undefined in
+*Sociological Methods and Research* or the *European Sociological Review* is used plainly, and
+a statistics-only term is defined once at first use. `reference/prose-discipline.md` is the
+list of what to avoid while doing any of this, and `scripts/br_check_numbers.R` is run on the
+result before it goes anywhere.
 
 ## Checking the draft against the output
 

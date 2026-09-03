@@ -47,9 +47,12 @@ The scaffolder refuses to overwrite an existing output file, because the scaffol
 by hand and a re-run after a new log entry would otherwise destroy that work; move the old
 file aside, or pass `overwrite = TRUE` (`--force` on the command line) when replacement is
 what you want. Filling it is mechanical – replace each placeholder with the pass's figure or
-table and one sentence of reading – and the checklist is filled last, because filling it is an audit: a
-row you cannot point at a section is a stage the analysis skipped, discovered while there
-is still time to run it.
+table and one sentence of reading – and the coverage table is filled last, from the log. It is a
+write-up-time record of where each stage is reported, for the reviewer who wants to find it. A
+row with nothing to point at is written as what it is – a stage this analysis did not run, with
+the reason if the log gives one – and the appendix is the place that fact belongs. It is not a
+list of work to go back and do: an analysis is finished when its question is answered, and the
+appendix records the route taken, not the route a template would have preferred.
 
 ## What the finished appendix contains, and in what order
 

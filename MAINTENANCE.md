@@ -107,6 +107,13 @@ rough order of risk:
   residual from the predictive draws for every family without an identity link. Contract: "on a
   lognormal fit, sigma is the spread of log(y), not of y".
 
+- **Families whose log-likelihood brms computes through a package it only suggests.**
+  `beta_binomial()` needs `extraDistr`; without it every fit succeeds and the first `loo()`
+  halts with "Please install the 'extraDistr' package", which is also where
+  `bw_loo_report()` would halt. Found while validating against a clinical-trial case study.
+  Not a contract, because it is an installation gap rather than a behaviour that can drift;
+  the README's install line now includes it.
+
 ## What silent drift looks like
 
 Code breaking is the easy case: it errors, and the contracts catch it. The harder failure is

@@ -78,10 +78,12 @@ R, with a working Stan toolchain. `cmdstanr` is recommended over `rstan`.
 ```r
 install.packages("pak")
 pak::pak(c("brms", "cmdstanr", "posterior", "loo", "priorsense", "projpred",
-           "bayesplot", "tidybayes", "ggdist", "marginaleffects"))
+           "bayesplot", "tidybayes", "ggdist", "marginaleffects", "extraDistr"))
 ```
 
-`SBC` is optional and needed only for simulation-based calibration.
+`SBC` is optional and needed only for simulation-based calibration. `extraDistr` is needed
+only for the beta-binomial family, whose log-likelihood brms computes through it; without
+it the fit succeeds and the first `loo()` halts.
 
 ## Relationship to the book
 

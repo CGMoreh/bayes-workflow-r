@@ -1,6 +1,6 @@
 {
   "skill_name": "bayes-reporting-r",
-  "notes": "Iteration-2 suite. Iteration 1 retired three cases the unassisted model handled completely (the weak-likelihood null, text-against-supplement placement, threshold-free reporting) and kept the two that touched the skill's structure. New cases target the reference content added since: the why-Bayesian objection, where the anti-pattern is answering with philosophy, and the log-to-appendix conversion, where the skill carries a scaffolder and a stage-coverage checklist. Case 5 was added after the blind validation, where the single serious analytical error across five runs was a recommendation resting on a number-free sentence that the report's own printed table contradicted. It is the class of error a numbers check cannot reach, so the skill lists such sentences rather than trying to grade them.",
+  "notes": "Iteration-2 suite. Iteration 1 retired three cases the unassisted model handled completely (the weak-likelihood null, text-against-supplement placement, threshold-free reporting) and kept the two that touched the skill's structure. New cases target the reference content added since: the why-Bayesian objection, where the anti-pattern is answering with philosophy, and the log-to-appendix conversion, where the skill carries a scaffolder and a stage-coverage checklist. Case 5 was added after the blind validation, where the single serious analytical error across five runs was a recommendation resting on a number-free sentence that the report's own printed table contradicted. It is the class of error a numbers check cannot reach, so the skill lists such sentences rather than trying to grade them. Cases 6 and 7 were added with the results templates and the register reference: the first tests whether a results section is written in the book's interpretive register, with the quantity first, the gradient kept, the comparison probability withdrawn where it is fragile, and the limit beside the claim; the second tests restructuring a consultancy-style report into journal sections without changing a number.",
   "evals": [
     {
       "id": 1,
@@ -59,6 +59,30 @@
         "The response distinguishes a claim that quantifies without giving a number from one carrying a figure, noting that matching the draft's numbers against the output would not have caught this",
         "The response confirms that the numerals actually present - 0.201, 0.138, 0.261 - do trace to the output, rather than treating the whole paragraph as unsupported",
         "The response does NOT check only the numerals and pronounce the paragraph consistent with its output"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Write the results section for my paper. A pest-control trial, 262 apartments, count of pests caught with a trapping-window offset. Final model: negative binomial with the treatment effect varying by log baseline count. Output I have saved:\n\nratio of expected counts, treated/untreated, averaged over apartments within draws: 0.41, 95% [0.27, 0.63]\nby baseline quintile: 0.11 [0.05, 0.23], 0.16 [0.09, 0.28], 0.28 [0.18, 0.44], 0.53 [0.31, 0.88], 0.98 [0.44, 2.14]\ngrouped ppc on the untreated arm mean: constant-effect model expectation 72.3 vs observed 34.7; interaction model 34.1\nPoisson: p_loo 274.7 against 4 parameters\nloo_compare interaction vs constant-effect: elpd_diff -8.4, se_diff 4.7; dropping the three most influential apartments moves P(worse) from 0.96 to 1.00\nPareto k: 2 of 262 above 0.7 on the constant-effect model, 0 after moment matching\nno building identifier in the data",
+      "expected_output": "A results section in the book's register: the ratio on the count scale first with its interval, then the gradient by baseline with the top quintile's interval spanning one, the constant-effect model's failure on the arm mean joined to the interaction model, the Poisson read through p_loo against parameters, the comparison reported as difference and standard error with the probability withdrawn because three apartments move it, and the missing building identifier stated beside the claim.",
+      "assertions": [
+        "The section opens with the treatment ratio on the count scale and its interval, before any diagnostic is mentioned",
+        "The section reports the gradient across baseline quintiles and says the interval spans one in the most infested group, rather than reporting only the average",
+        "The section reports the elpd difference with its standard error and explicitly declines to report the probability because three apartments move it, rather than converting the comparison into a verdict",
+        "The absence of a building identifier is stated in the same paragraph as the estimate it qualifies, not only in a separate limitations section",
+        "The section does NOT describe the treatment effect as clear, significant or robust, and does NOT open with a paragraph of convergence diagnostics"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "My analyst wrote this up as a client report with the headings 'The answer in one paragraph', 'What I did', 'How much to trust this' and 'Where the numbers come from'. I need it as journal sections instead. The numbers are correct and must not change. Restructure it into a Data and Analysis section and a Results section for a sociology journal, keeping every caveat the analyst gave.\n\n[the report: a sleep-restriction study, 18 participants over 10 days; average slope 10.6 ms per day, 95% [7.0, 14.0]; between-participant SD of the slope 6.9 [4.8, 10.6]; Student-t chosen over gaussian after 3 of 180 observations fell outside their LOO predictive intervals, elpd_diff 33.0 se 13.0; slope moves by under 0.4 ms/day under power-scaling; the design recovers the between-participant SD in 61% of simulated replications and overstates it by 1.4 when it does; no record of daytime napping]",
+      "expected_output": "Two sections with journal headings. Data and Analysis states the design, the model, the priors and what they imply, the checks and the comparison; Results states the two quantities on the outcome scale with the spread translated into what it means for a participant, reports the calibration result as the spread being the less secure finding, and keeps the napping caveat beside the estimate. Every number identical to the report's.",
+      "assertions": [
+        "The response produces a section that reads as Data and Analysis (or Methods) and a section that reads as Results, and the consultancy headings are gone",
+        "Every number in the response matches the report exactly, with none added, dropped or re-rounded",
+        "The between-participant standard deviation is translated into what it means for a participant one standard deviation above or below the average rate",
+        "The design-calibration result is used to say which of the two findings is the less secure, rather than reported as a bare recovery rate",
+        "The napping caveat appears beside the estimate it qualifies, and the response does NOT add any claim the report did not make"
       ]
     }
   ]

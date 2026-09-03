@@ -78,5 +78,13 @@
   {
     "query": "My draft says no other predictor reaches half the folds. How do I verify a claim like that against the projpred output?",
     "should_trigger": true
+  },
+  {
+    "query": "Write the results section for my paper from these brms outputs, in the style the Bayesian Workflow book uses for its case studies.",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn my analyst's client-style report into Data and Analysis and Results sections for a sociology journal.",
+    "should_trigger": true
   }
 ]
