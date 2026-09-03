@@ -162,7 +162,8 @@ structure the appendix needs. Convert it by:
 | `reference/prose-discipline.md` | What to avoid while writing any of it: the hedging direction, the marks of machine prose, the vocabulary that reads as machine text, and why |
 
 Two bundled scripts. `scripts/br_appendix.R` converts a `bayes-workflow-log.md` into a
-Quarto appendix skeleton with a stage-coverage checklist –
+Quarto appendix skeleton with a stage-coverage table, derived from the log by the workflow
+skill's `bw_scheme.R` where that skill is installed and left to fill by hand otherwise –
 `Rscript "${CLAUDE_SKILL_DIR}/scripts/br_appendix.R" bayes-workflow-log.md appendix-workflow.qmd`.
 `scripts/br_check_numbers.R` checks a finished draft against the output behind it –
 `Rscript "${CLAUDE_SKILL_DIR}/scripts/br_check_numbers.R" manuscript.qmd output/`.

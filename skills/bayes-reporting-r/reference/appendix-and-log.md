@@ -40,8 +40,10 @@ br_appendix_scaffold("bayes-workflow-log.md", "appendix-workflow.qmd")
 # Rscript "${CLAUDE_SKILL_DIR}/scripts/br_appendix.R" bayes-workflow-log.md appendix-workflow.qmd
 ```
 
-The scaffold contains, in order: a framing paragraph; a **stage-coverage checklist**, one
-row per workflow stage with a "reported where" cell to fill; one section per log entry,
+The scaffold contains, in order: a framing paragraph; a **stage-coverage table** – derived
+from the log by the workflow skill's `bw_scheme.R` where that skill is installed, one row per
+stage the log placed something at, and otherwise one row per workflow stage with a "reported
+where" cell to fill; one section per log entry,
 quoting the entry and holding a labelled, empty figure chunk; and a `sessionInfo()` block.
 The scaffolder refuses to overwrite an existing output file, because the scaffold is filled
 by hand and a re-run after a new log entry would otherwise destroy that work; move the old
