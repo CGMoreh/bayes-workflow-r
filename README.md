@@ -77,13 +77,13 @@ R, with a working Stan toolchain. `cmdstanr` is recommended over `rstan`.
 
 ```r
 install.packages("pak")
+pak::repo_add(stan = "https://stan-dev.r-universe.dev")   # cmdstanr is not on CRAN
 pak::pak(c("brms", "cmdstanr", "posterior", "loo", "priorsense", "projpred",
-           "bayesplot", "tidybayes", "ggdist", "marginaleffects", "extraDistr"))
+           "bayesplot", "tidybayes", "ggdist", "marginaleffects", "digest",
+           "extraDistr"))
 ```
 
-`SBC` is optional and needed only for simulation-based calibration. `extraDistr` is needed
-only for the beta-binomial family, whose log-likelihood brms computes through it; without
-it the fit succeeds and the first `loo()` halts.
+`SBC` is optional and needed only for simulation-based calibration. brms lists `digest` and `extraDistr` as optional, but its `loo()` halts without them, while the fit itself succeeds. `digest` is needed for every model, because brms uses it to fingerprint the outcome each time `loo()` runs; `extraDistr` is needed only for the beta-binomial family, whose log-likelihood brms computes through it. Most R installations already have `digest`, which many other packages depend on, and a fresh library is where its absence shows.
 
 ## Relationship to the book
 

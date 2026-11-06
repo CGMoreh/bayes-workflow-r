@@ -25,6 +25,10 @@ jobs:
   contracts:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # The default token is read-only, and the last step opens an issue.
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - uses: actions/checkout@v5          # v4 runs Node 20, now deprecated
@@ -47,6 +51,11 @@ jobs:
             any::jsonlite
             any::dplyr
             any::purrr
+            # brms only suggests these two, but its loo() halts without them:
+            # digest hashes the response of every brmsfit, and extraDistr
+            # carries the beta-binomial log-likelihood
+            any::digest
+            any::extraDistr
 
       - name: Install CmdStan
         run: |
@@ -76,9 +85,11 @@ jobs:
         with:
           script: |
             const title = 'Dependency contract failure on the scheduled run';
+            // matched on the title alone, so an issue whose label was dropped
+            // is still found and not opened a second time
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
-              state: 'open', labels: 'dependencies'
+              state: 'open'
             });
             if (existing.data.some(i => i.title === title)) return;
             await github.rest.issues.create({

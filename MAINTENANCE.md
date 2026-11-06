@@ -107,12 +107,7 @@ rough order of risk:
   residual from the predictive draws for every family without an identity link. Contract: "on a
   lognormal fit, sigma is the spread of log(y), not of y".
 
-- **Families whose log-likelihood brms computes through a package it only suggests.**
-  `beta_binomial()` needs `extraDistr`; without it every fit succeeds and the first `loo()`
-  halts with "Please install the 'extraDistr' package", which is also where
-  `bw_loo_report()` would halt. Found while validating against a clinical-trial case study.
-  Not a contract, because it is an installation gap rather than a behaviour that can drift;
-  the README's install line now includes it.
+- **Packages that brms only suggests but that `loo()` needs.** `digest` is needed for every model, because the internal brms function `hash_response()` calls `digest::sha1()` to fingerprint the outcome whenever `loo()` runs on a `brmsfit`. `extraDistr` is needed for `beta_binomial()`, whose log-likelihood brms computes through it. Without either, every fit succeeds and the first `loo()` halts with "Please install the 'digest' package" or its `extraDistr` equivalent, which is also where `bw_loo_report()` halts. The `extraDistr` gap was found while validating against a clinical-trial case study. The `digest` gap appeared on the CI runner in November 2026, when no other installed package depended on `digest` any longer, and it failed four contracts at once. Most user libraries hold `digest` through other packages, so a fresh library is where its absence shows. Neither is a contract, because each is an installation gap rather than a behaviour that can drift. Both are in the README's install line and in the install list of the CI workflow.
 
 ## What silent drift looks like
 
