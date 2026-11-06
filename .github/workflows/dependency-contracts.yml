@@ -14,12 +14,13 @@ on:
   push:
     paths:
       - "skills/**/scripts/*.R"
-      - "tests/dependency-contracts.R"
+      - "tests/**"
       - ".github/workflows/dependency-contracts.yml"
   pull_request:
     paths:
       - "skills/**/scripts/*.R"
-      - "tests/dependency-contracts.R"
+      - "tests/**"
+      - ".github/workflows/dependency-contracts.yml"
 
 jobs:
   contracts:
