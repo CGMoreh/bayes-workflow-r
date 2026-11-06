@@ -37,6 +37,10 @@ jobs:
         with:
           use-public-rspm: true
 
+      # brms only suggests digest and extraDistr, but its loo() halts without
+      # them: digest hashes the response of every brmsfit, and extraDistr
+      # carries the beta-binomial log-likelihood. Comments go here, above the
+      # step, because a line inside the packages block is read as a package.
       - name: Install dependencies from CRAN
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -51,9 +55,6 @@ jobs:
             any::jsonlite
             any::dplyr
             any::purrr
-            # brms only suggests these two, but its loo() halts without them:
-            # digest hashes the response of every brmsfit, and extraDistr
-            # carries the beta-binomial log-likelihood
             any::digest
             any::extraDistr
 
