@@ -6,36 +6,40 @@ What can break these skills, how you find out, and what to do about it.
 
 | Package | Version | Source |
 |---|---|---|
-| R | 4.6.0 | |
+| R | 4.6.2 | |
 | brms | 2.23.0 | CRAN |
 | cmdstanr | 0.9.0 | stan-dev.r-universe.dev |
+| CmdStan | 2.40.0 | installed by cmdstanr |
 | rstan | 2.32.7 | CRAN |
-| loo | 2.9.0 | CRAN |
-| posterior | 1.7.1 | CRAN |
-| priorsense | 1.2.0 | CRAN |
-| projpred | 2.10.0 | CRAN |
-| bayesplot | 1.15.0 | CRAN |
-| marginaleffects | 0.32.0 | CRAN |
+| loo | 2.10.1 | CRAN |
+| posterior | 1.7.0 | CRAN |
+| priorsense | 1.4.0 | CRAN |
+| projpred | 2.11.0 | CRAN |
+| bayesplot | 1.16.0 | CRAN |
+| marginaleffects | 1.0.0 | CRAN |
 | tidybayes | 3.0.7 | CRAN |
 | jsonlite | 2.0.0 | CRAN |
+
+The versions are those of the CI run of 6 November 2026 on Ubuntu, in which all 35 contracts and all 39 scheme checks passed. Neither test loads tidybayes, so its row records the version installed during development.
 
 ```markdown
 | Package         | Version | Source                  |
 |-----------------|---------|-------------------------|
-| R               | 4.6.0   |                         |
+| R               | 4.6.2   |                         |
 | brms            | 2.23.0  | CRAN                    |
 | cmdstanr        | 0.9.0   | stan-dev.r-universe.dev |
+| CmdStan         | 2.40.0  | installed by cmdstanr   |
 | rstan           | 2.32.7  | CRAN                    |
-| loo             | 2.9.0   | CRAN                    |
-| posterior       | 1.7.1   | CRAN                    |
-| priorsense      | 1.2.0   | CRAN                    |
-| projpred        | 2.10.0  | CRAN                    |
-| bayesplot       | 1.15.0  | CRAN                    |
-| marginaleffects | 0.32.0  | CRAN                    |
+| loo             | 2.10.1  | CRAN                    |
+| posterior       | 1.7.0   | CRAN                    |
+| priorsense      | 1.4.0   | CRAN                    |
+| projpred        | 2.11.0  | CRAN                    |
+| bayesplot       | 1.16.0  | CRAN                    |
+| marginaleffects | 1.0.0   | CRAN                    |
 | tidybayes       | 3.0.7   | CRAN                    |
 | jsonlite        | 2.0.0   | CRAN                    |
 
-: Versions the contract checks last passed against. Update after a green run on newer ones.
+: Versions the contract checks last passed against (CI run of 6 November 2026; tidybayes is not loaded by the tests). Update after a green run on newer ones.
 ```
 
 These are the versions the contract checks last passed against, not a floor and not a
@@ -58,11 +62,7 @@ reference files use, and need no model. Object contracts fit one small model and
 it, checking the structures the scripts read. With no Stan backend available the object tier
 is skipped loudly rather than counted as passing.
 
-`.github/workflows/dependency-contracts.yml` runs the same file against current CRAN on the
-first of each month, on any push that touches a script or the contracts themselves, and on
-demand. A scheduled failure opens an issue labelled `dependencies` naming the failing
-contract. Monthly is deliberate: these packages move on a scale of months, and a nightly job
-would mostly spend minutes confirming silence.
+`.github/workflows/dependency-contracts.yml` runs the same file against current CRAN, followed by `tests/scheme-tests.R`, on the first of each month, on any push that touches a script, the workflow or anything under `tests/`, and on demand. A scheduled failure opens an issue labelled `dependencies` and naming the failing contract. Monthly is deliberate: these packages move on a scale of months, and a nightly job would mostly spend minutes confirming silence. GitHub disables a scheduled workflow after 60 days without a commit to the repository, and emails a warning beforehand. Any push resets that clock, as does the option offered on the page of the workflow under the Actions tab.
 
 ## What is most likely to break, and why
 
