@@ -82,8 +82,14 @@ runs <- list(
   current = list(dir = file.path(blind, "with_plugin_current")),
   pre     = list(dir = file.path(blind, "with_plugin_pre"))
 )
-for (fx in c("loose", "emptylog", "nolog", "fx_noheads", "fx_empty")) {
-  if (fx %in% list.files(proto) && dir.exists(file.path(proto, fx))) runs[[fx]] <- list(dir = file.path(proto, fx))
+# A fixture absent from the checkout counts as a failure, so that a smaller run
+# cannot pass unnoticed. Git stores no empty directory, which is why fx_empty
+# holds a .gitkeep: list.files() does not return dot-files, so the generator
+# still finds the directory empty.
+for (fx in c("loose", "emptylog", "nolog", "fx_noheads", "fx_empty")) { # r-style: keep – check() records by side effect
+  present <- dir.exists(file.path(proto, fx))
+  check(paste0(fx, ": fixture directory is present"), present)
+  if (present) runs[[fx]] <- list(dir = file.path(proto, fx))
 }
 outputs <- list()
 for (nm in names(runs)) {

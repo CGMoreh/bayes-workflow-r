@@ -8,3 +8,8 @@ _output/
 *.rds
 *.stan.bak
 .DS_Store
+
+# The scheme-test fixtures keep model files by name only, at zero bytes, and
+# the generator counts them, so the repository has to carry them.
+!tests/fixtures/scheme/**/model-data/
+!tests/fixtures/scheme/**/*.rds
