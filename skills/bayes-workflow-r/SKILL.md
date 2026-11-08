@@ -1,18 +1,18 @@
 ---
 name: bayes-workflow-r
 description: >-
-  Run a Bayesian analysis in R with brms, rstanarm or cmdstanr on Stan, as an iterative
-  workflow rather than a single fit. Covers choosing priors and checking what they imply,
-  prior predictive simulation, MCMC failure read as a
-  modelling problem, posterior predictive checks that name the next model,
-  leave-one-out model comparison with pointwise attribution,
-  prior and likelihood sensitivity by power-scaling, design calibration by simulation at
-  the real sample size, and what weights() in a brm() call does and does not adjust for. Use when fitting, expanding, diagnosing or
-  troubleshooting a model in any of those packages; when Stan warns about divergent
-  transitions, treedepth, low effective sample size or non-convergence; or when a small
-  sample needs a defence against the objection that the priors drove the result and the
-  evidence for that defence has to be generated. For causal estimands and target populations
-  use bayes-estimands-r; for writing the analysis up use bayes-reporting-r.
+  Run a Bayesian analysis in R with brms, rstanarm or cmdstanr on Stan as an iterative workflow
+  rather than a single fit, with a log of each model, check and decision and a record of the
+  analysis (WORKFLOW.md) generated from it. Covers priors and what they imply, prior predictive
+  simulation, MCMC failure read as a modelling problem, posterior predictive checks that name
+  the next model, leave-one-out comparison with pointwise attribution, power-scaling
+  sensitivity, design calibration at the real sample size, and what weights() in brm() does and
+  does not adjust for. Use when fitting, expanding, diagnosing or troubleshooting a model in any
+  of those packages; when Stan warns about divergent transitions, treedepth, low effective
+  sample size or non-convergence; when asked where a Bayesian analysis stands; or when a small
+  sample needs a defence against the charge that the priors drove the result. For causal
+  estimands and target populations use bayes-estimands-r; for writing the analysis up use
+  bayes-reporting-r.
 license: MIT
 compatibility: Requires R with brms and a working Stan toolchain (cmdstanr recommended). The
   optional steps use loo, priorsense, projpred, bayesplot, posterior, tidybayes and marginaleffects.
@@ -165,8 +165,4 @@ with `patchwork` for figures. Set a seed for anything stochastic. Install with `
 
 ## Provenance
 
-Built on the workflow set out in Gelman, Vehtari, McElreath and colleagues, *Bayesian
-Workflow* (Chapman and Hall / CRC Press, 2026). The book is cited throughout and linked case
-study by case study in `reference/book-map.md`; no text, code or data from the book or its
-companion site is reproduced here. The R translations, the prose and the scripts are original
-to this plugin, and errors in them are ours rather than the book's.
+Built on the workflow guidelines put forward by Gelman, Vehtari and colleagues (Gelman et al. 2020, "Bayesian Workflow", arXiv:2011.01808) and demonstrated in their book *Bayesian Workflow* (Chapman and Hall / CRC Press, 2026). Where the book treats a step, `reference/book-map.md` gives the chapter and the case study; no text, code or data from the book or its companion site is reproduced here. The R translations, the prose and the scripts are original to this plugin, which is independent of the authors and not endorsed by them, and errors in them are ours rather than the authors'.

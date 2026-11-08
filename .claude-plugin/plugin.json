@@ -1,7 +1,7 @@
 {
   "name": "bayes-workflow-r",
   "version": "0.1.0",
-  "description": "Bayesian workflow in R with brms and Stan, as an iterative loop rather than a single fit: prior checking, computational diagnosis, predictive checking, estimands and target populations, design calibration, and the write-up.",
+  "description": "Bayesian analysis in R with brms and Stan, with its record and its write-up: a log of each model, check and decision, a workflow record generated from it, the methods and results sections of an article in one file, and every number in the draft checked against the saved output.",
   "author": {
     "name": "Chris Moreh"
   },
@@ -10,7 +10,8 @@
   "license": "MIT",
   "keywords": [
     "r", "brms", "stan", "bayesian", "workflow", "loo", "priorsense",
-    "poststratification", "causal-inference", "reproducibility", "social-science"
+    "poststratification", "causal-inference", "reproducibility", "reporting",
+    "quarto", "social-science"
   ],
   "skills": ["./skills/"]
 }

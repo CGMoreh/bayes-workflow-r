@@ -28,7 +28,7 @@
     "should_trigger": true
   },
   {
-    "query": "using rstanarm, stan_glmer on some school data \u2014 the group-level sd posterior is piled up against zero and I'm getting warnings. is the model wrong?",
+    "query": "using rstanarm, stan_glmer on some school data 2014 the group-level sd posterior is piled up against zero and I'm getting warnings. is the model wrong?",
     "should_trigger": true
   },
   {
@@ -86,5 +86,13 @@
   {
     "query": "40% of my count outcome is zeros and many respondents would never do the activity at all. Hurdle or zero-inflated negative binomial in brms?",
     "should_trigger": true
+  },
+  {
+    "query": "Where does my brms analysis stand? I've fitted four models over two weeks and lost track of which checks I ran on which, and what I decided to try next.",
+    "should_trigger": true
+  },
+  {
+    "query": "Give me a status summary of my lme4 mixed-model analysis: which specifications I've tried so far and what's left to do.",
+    "should_trigger": false
   }
 ]

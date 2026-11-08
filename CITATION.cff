@@ -1,8 +1,9 @@
 cff-version: 1.2.0
 title: "bayes-workflow-r: agent skills for Bayesian workflow in R"
 message: >-
-  If you use these skills, please cite the book they follow (Gelman et al. 2026)
-  for anything methodological. Cite this repository only for the tooling itself.
+  If you use these skills, please cite the authors whose workflow guidelines they
+  apply (Gelman et al. 2020; Gelman et al. 2026) for anything methodological. Cite
+  this repository only for the tooling itself.
 type: software
 authors:
   - given-names: Chris
@@ -35,3 +36,21 @@ references:
       - {given-names: Paul-Christian, family-names: "Bürkner"}
       - {given-names: Martin, family-names: "Modrák"}
       - {given-names: Vianey, family-names: "Leos Barajas"}
+  - type: article
+    title: "Bayesian Workflow"
+    year: 2020
+    url: "https://arxiv.org/abs/2011.01808"
+    identifiers:
+      - type: other
+        value: "arXiv:2011.01808"
+    authors:
+      - {given-names: Andrew, family-names: Gelman}
+      - {given-names: Aki, family-names: Vehtari}
+      - {given-names: Daniel, family-names: Simpson}
+      - {given-names: "Charles C.", family-names: Margossian}
+      - {given-names: Bob, family-names: Carpenter}
+      - {given-names: Yuling, family-names: Yao}
+      - {given-names: Lauren, family-names: Kennedy}
+      - {given-names: Jonah, family-names: Gabry}
+      - {given-names: Paul-Christian, family-names: "Bürkner"}
+      - {given-names: Martin, family-names: "Modrák"}
