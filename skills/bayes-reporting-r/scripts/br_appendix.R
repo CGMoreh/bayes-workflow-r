@@ -1,12 +1,13 @@
 ################################################################################
 # Title:      Workflow appendix scaffold
 # Purpose:    Convert a bayes-workflow-log.md into a Quarto supplementary
-#             appendix skeleton: one section per logged pass round the loop,
-#             plus a stage-coverage table, derived from the log where the
-#             workflow skill's generator is installed and left to fill otherwise
+#             appendix skeleton: one numbered section per logged pass round the
+#             loop, plus a stage-coverage table of the nine stages, derived
+#             from the log where the workflow skill's generator is installed
+#             and left to fill otherwise
 # Sourced by: bayes-reporting-r skill; call br_appendix_scaffold()
 # Author:     Chris Moreh
-# Last updated: 2026-09-03
+# Last updated: 2026-11-08
 ################################################################################
 
 # The stage-coverage table is derived from the log where the workflow skill's
@@ -14,40 +15,86 @@
 # rules that write WORKFLOW.md fill it, so the appendix and the record agree.
 # Where that skill is absent the scaffold keeps a table to fill by hand. The
 # reporting skill therefore works on its own, and works better with the other.
+
+# the nine stages of the loop as bw_scheme.R names them, used when the generator
+# is not there to supply its own STAGE_NAMES
+br_stage_names <- c(
+  "Simplest defensible model", "Priors and what they imply",
+  "Prior predictive simulation", "Fit", "Computational diagnosis",
+  "Posterior predictive checks", "Sensitivity by power-scaling",
+  "Expand or compare", "Design calibration"
+)
+
+br_reported_where <- "[main text section / appendix section / not run, because ...]"
+
+# The path of this file, recorded while the file is being read. Under source()
+# the path is kept in the frame of source(), which has gone by the time a
+# function defined here runs; when the file is run as a script, the path is the
+# --file argument of the command line.
+br_appendix_file <- local({
+  src <- Filter(function(e) is.character(e$ofile), sys.frames()) # r-style: keep – base R only, the plugin adds no package
+  if (length(src)) {
+    e <- src[[length(src)]]
+    # with chdir = TRUE, source() has already moved into the folder of the file
+    if (is.null(e$owd)) normalizePath(e$ofile, mustWork = FALSE) else file.path(getwd(), basename(e$ofile))
+  } else {
+    f <- sub("^--file=", "", grep("^--file=", commandArgs(), value = TRUE))
+    if (length(f)) normalizePath(f[1], mustWork = FALSE) else ""
+  }
+})
+
 br_find_scheme <- function(scheme_script = NULL) {
   if (!is.null(scheme_script)) return(if (file.exists(scheme_script)) scheme_script else NULL)
-  here <- sub("^--file=", "", grep("^--file=", commandArgs(), value = TRUE))
-  if (!length(here)) {
-    f <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
-    here <- if (is.null(f)) "" else f
-  }
-  if (!nzchar(here[1])) return(NULL)
-  cand <- file.path(dirname(dirname(normalizePath(here[1], mustWork = FALSE))),
-                    "..", "bayes-workflow-r", "scripts", "bw_scheme.R")
+  here <- get0("br_appendix_file", ifnotfound = "")
+  if (!nzchar(here)) return(NULL)
+  cand <- file.path(dirname(dirname(here)), "..", "bayes-workflow-r", "scripts", "bw_scheme.R")
   if (file.exists(cand)) normalizePath(cand) else NULL
 }
 
 # Runs the generator on the log into a temporary file and lifts its Stages
 # section, so the appendix reuses the renderer rather than reimplementing it.
+# Returns the generator's stage names and the table, whose rows are NULL when the
+# generator cannot derive them from this log; NULL when it cannot be sourced.
 br_derived_stages <- function(log, scheme_script) {
   env <- new.env()
   ok  <- tryCatch({ sys.source(scheme_script, envir = env); TRUE }, error = function(e) FALSE)
   if (!ok) return(NULL)
+  names <- if (is.character(env$STAGE_NAMES) && length(env$STAGE_NAMES) == 9L) {
+    unname(env$STAGE_NAMES)
+  } else {
+    br_stage_names
+  }
   tmp <- tempfile(fileext = ".md")
   res <- tryCatch(env$bw_scheme(log = log, out = tmp, quiet = TRUE), error = function(e) NULL)
-  if (is.null(res) || !file.exists(tmp)) return(NULL)
+  if (is.null(res) || !file.exists(tmp)) return(list(names = names, table = NULL))
   md   <- readLines(tmp, warn = FALSE, encoding = "UTF-8")
   from <- which(md == "## Stages")
-  if (!length(from)) return(NULL)
+  if (!length(from)) return(list(names = names, table = NULL))
   nxt  <- which(grepl("^## ", md) & seq_along(md) > from[1])
   to   <- if (length(nxt)) nxt[1] - 1L else length(md)
   block <- md[(from[1] + 1L):to]
-  block[nzchar(trimws(block))]
+  block <- block[nzchar(trimws(block))]
+  # the generator writes a row only for a stage it placed something at; the
+  # appendix keeps all nine in the generator's order, and the entry cell of a
+  # stage with no entry placed at it says so
+  dash <- "\u2013"
+  rows <- vapply(seq_along(names), function(s) { # r-style: keep – base R only, the plugin adds no package
+    row <- block[startsWith(block, paste0("| ", s, " "))]
+    row <- if (length(row)) row[1] else paste0("| ", s, " ", names[s], " | ", dash, " | ", dash, " | ", dash, " |")
+    row <- sub(paste0("^([|] ", s, " [^|]+[|] )", dash, " [|]"),
+               "\\1no entry placed here by the log's wording |", row)
+    paste0(row, " ", br_reported_where, " |")
+  }, character(1))
+  writeup <- block[startsWith(block, "| Write-up |")]
+  list(names = names,
+       table = c(paste0(block[1], " Reported where |"), paste0(block[2], "---|"), rows,
+                 if (length(writeup)) paste0(writeup[1], " ", dash, " |")))
 }
 
-# The log's entry format is one "## <date> - <label>" heading per pass, as set out
+# The log's entry format is one "## <date> – <label>" heading per pass, as set out
 # in the bayes-workflow-r SKILL.md. Any second-level heading is accepted, so a log
-# kept in a looser style still scaffolds; entries simply keep their own titles.
+# kept in a looser style still scaffolds; entries simply keep their own titles,
+# and are numbered in log order as the generator numbers them.
 
 br_appendix_scaffold <- function(log = "bayes-workflow-log.md",
                                  out = "appendix-workflow.qmd",
@@ -84,27 +131,29 @@ br_appendix_scaffold <- function(log = "bayes-workflow-log.md",
          body  = if (e > h) trimws(paste(lines[seq(h + 1L, e)], collapse = "\n")) else "")
   }, heads, ends)
 
-  stages <- c("Priors, and what they imply", "Prior predictive simulation", "Fit",
-              "Computational diagnosis", "Posterior predictive checks",
-              "Prior and likelihood sensitivity", "Model comparison or expansion",
-              "Design calibration")
-
   derived <- if (!is.null(scheme_script)) br_derived_stages(log, scheme_script) else NULL
-  coverage <- if (!is.null(derived)) {
+  names   <- if (is.null(derived)) br_stage_names else derived$names
+  table   <- if (is.null(derived)) NULL else derived$table
+  coverage <- if (!is.null(table)) {
     c("## Stage coverage",
       "",
-      "Derived from the workflow log by the same rules that write `WORKFLOW.md`: a stage",
-      "appears where the log placed an entry or a file at it. Add the manuscript section",
-      "that reports each row.",
+      paste0("Derived from the workflow log by the same rules that write `WORKFLOW.md`. ",
+             "Each of the nine stages lists the entries placed at it by the wording of the ",
+             "log, the entries whose text also reaches it and the files placed at it, and ",
+             "the numbers are those of the entry sections below. Fill the last column with ",
+             "the manuscript section that reports each stage. A stage with no entry placed ",
+             "at it may still have been run inside another entry, as a prior predictive ",
+             "check often is, so read the entries that reach it before writing that the ",
+             "stage was not run."),
       "",
-      derived,
+      table,
       "")
   } else {
     c("## Stage coverage",
       "",
-      "| Workflow stage | Reported where |",
+      "| Stage | Reported where |",
       "|---|---|",
-      paste0("| ", stages, " | [main text section / appendix section / not run, because ...] |"),
+      paste0("| ", seq_along(names), " ", names, " | ", br_reported_where, " |"),
       "",
       "A row with nothing to point at is written as what it is: a stage this analysis did",
       "not run, with the reason if there is one. The appendix records the route taken.",
@@ -131,10 +180,11 @@ br_appendix_scaffold <- function(log = "bayes-workflow-log.md",
     coverage
   )
 
-  for (e in entries) {
+  for (i in seq_along(entries)) {
+    e <- entries[[i]]
     qmd <- c(
       qmd,
-      paste0("## ", e$title),
+      paste0("## Entry ", i, " \u2013 ", e$title),
       "",
       "From the workflow log:",
       "",
@@ -174,8 +224,15 @@ br_appendix_scaffold <- function(log = "bayes-workflow-log.md",
   qmd[lab_at] <- make.unique(labs, sep = "-")
 
   writeLines(qmd, out)
-  cat("wrote ", out, ": ", length(entries), " workflow section(s) plus the stage coverage table\n",
-      sep = "")
+  how <- if (!is.null(table)) {
+    paste0("the stage coverage table derived from the log by ", basename(scheme_script))
+  } else if (is.null(scheme_script)) {
+    "a stage coverage table to fill by hand, because bw_scheme.R was not found beside this skill"
+  } else {
+    paste0("a stage coverage table to fill by hand, because ", basename(scheme_script),
+           " could not derive one from this log")
+  }
+  cat("wrote ", out, ": ", length(entries), " workflow section(s) and ", how, "\n", sep = "") # r-style: keep – the console line is the scaffolder's report
   invisible(out)
 }
 

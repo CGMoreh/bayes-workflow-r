@@ -1,204 +1,107 @@
 # Worked results sections, annotated
 
-Three complete results sections, one per common design, matching the three methods sections in
-`methods-templates.md`. Each is followed by a table saying which stage of the workflow every
-sentence reports and where the evidence behind it lives. They are templates in the strict
-sense: the bracketed slots are the only parts meant to change, and every sentence outside a
-bracket is there because it does something the register requires – states the quantity on the
-substantive scale, reads a check as the absence of a visible problem, joins a failed check to
-the model that replaced it, or says beside a claim what would overturn it.
+Three complete results sections, one per common design, matching the three methods sections in `methods-templates.md`. Each is followed by a table saying which stage of the workflow every sentence reports and where the evidence behind it lives. They are templates in the strict sense: the bracketed slots are the only parts meant to change, each slot within a template has its own name, and every sentence outside a bracket is there because it does something that the register requires – states the quantity on the substantive scale, reads a check of the final model as the absence of a visible problem, grades a claim by what the design can recover, or says beside a claim what would overturn it. The annotation tables describe the templates and stay out of the write-up.
 
 The register is the one described in `results-register.md`: the interpretive prose of the
 workflow book's own case studies, written for a sociology journal. Numbers live in tables and
 figures; the sentence beside a table gives the comparative and the reading, and where a number
-does appear in prose it is a derived quantity a reader can picture, at a precision the
-posterior supports. The habits to avoid while writing are in `prose-discipline.md`.
+does appear in prose it is a derived quantity that a reader can picture, at a precision that
+the posterior supports. The habits to avoid while writing are in `prose-discipline.md`.
 
-A results section in this register has four movements, in this order: the quantity the paper
-is about, stated first with its uncertainty; the checks that licence it, read as what they
-could and could not see; the model sequence that produced it, with the failures kept; and what
-the analysis cannot settle, stated beside the claim rather than in a closing section.
+A results section in this register opens with the quantity that the paper is about, stated with its uncertainty. It then gives what the checks of the final model showed, the sensitivity of the reported quantity and the predictive checks, each read as what it could and could not detect, and then, where the design was calibrated, the result of the calibration, which grades the claims. What the analysis cannot settle has no fixed place in that order, because each limit sits beside the claim that it qualifies. The model sequence, with its failures and the comparison that chose the final model, is in the matching methods section, and the results refer to it in words. This is the division set by the rule under "Article sections" in SKILL.md, by which each number that the analysis produced appears in one section only.
 
 ---
 
 ## Template A: multilevel logistic model on a cross-sectional survey
 
-> The predicted probability of [outcome] rises from [p_low] at [low value of the predictor]
-> to [p_high] at [high value], averaging over the observed distribution of the other
-> covariates within each posterior draw (Figure [n]; posterior median and 95% interval in
-> Table [n]). That difference of [pp] percentage points is the quantity the argument depends
-> on, and it is insensitive to power-scaling of the priors and sensitive to power-scaling of
-> the likelihood, so the data rather than the prior specification are its source. The
-> [k] region intercepts are partially pooled: the between-region standard deviation is
-> [sd] on the log-odds scale, and the two regions with the fewest respondents, [names],
-> are pulled [x] and [y] percentage points towards the overall rate from their raw
-> proportions, which is the pooling doing what it is for rather than a defect. Posterior
-> predictive checks on the proportion of [outcome] within each [group] show no visible
-> discrepancy, and a leave-one-out check on the same proportions agrees, so the model
-> reproduces the between-group structure it was built to describe; neither check can see
-> misspecification within a group, and we do not claim it is absent. The coefficient on
-> [contested predictor] is centred near [value] with an interval spanning [interval], and
-> the likelihood sensitivity for it is low, so the data are weakly informative about it and
-> we treat it as undetermined rather than as null. Two things the analysis cannot check:
-> [unmeasured confounder] is not in the survey, and the [design feature] is not modelled,
-> so the intervals are narrower than a design-based analysis would give.
+> The predicted probability of [outcome] rises from [p_low] at [low value of the predictor] to [p_high] at [high value], averaging over the observed distribution of the other covariates within each posterior draw (Figure [n]; posterior medians and central [width]% intervals in Table [n]). That difference of [pp_diff] percentage points is the quantity that the argument depends on. The survey does not record [unmeasured confounder], and any difference in it between [the groups compared] is carried into the estimate. The [design feature] is not modelled either, so this interval, like every interval reported here, is likely to be narrower than a design-based analysis would give. The difference is insensitive to power-scaling of the prior and sensitive to power-scaling of the likelihood (prior sensitivity [psens_pp], likelihood sensitivity [lsens_pp]), so the data rather than the prior specification are its source. The [J] region intercepts are partially pooled: the between-region standard deviation is [sd_region] on the log-odds scale, and the two regions with the fewest respondents, [names], are pulled [shrink_1] and [shrink_2] percentage points towards the overall rate from the raw proportions in those regions, which is the pooling doing what it is for rather than a defect. Posterior predictive checks on a statistic that the region intercepts do not fit directly, the rate of [outcome] within [cells defined by a covariate, such as parental education] in each region, show no visible discrepancy, and a reliability diagram shows the predicted probabilities matching the observed frequencies across the range of the predictions; neither check can detect a misspecification that leaves those cells and those bins unaffected, and we do not claim that none is present. The coefficient on [contested predictor] is centred near [value_contested] with an interval spanning [interval_contested], and it is sensitive to power-scaling of the prior and insensitive to power-scaling of the likelihood, so the data are weakly informative about it and we treat it as undetermined rather than as null.
 
 | Sentence | Stage it reports | Evidence behind it |
 |---|---|---|
 | Predicted probabilities, averaged within draws | Estimand | `bayes-estimands-r`, `marginaleffects::avg_predictions()` |
+| What the survey does not record, and the unmodelled design | Limits beside the claim | the workflow log |
 | Insensitive to prior, sensitive to likelihood | Sensitivity of the estimand | `bw_sensitivity(fit, newdata = ...)` |
 | Partial pooling, with the two smallest regions | Fit and its structure | `ranef()`, raw against fitted proportions |
-| No visible discrepancy, and what the check cannot see | Predictive checks | `pp_check(type = "stat_grouped")`, `loo_pit_ecdf` |
-| Undetermined rather than null | Reporting the posterior | `reference/sensitivity.md`, the weak-likelihood reading |
-| Two things the analysis cannot check | Limits beside the claim | the workflow log |
+| Checks on a statistic that the intercepts do not fit, and what the checks cannot detect | Predictive checks of the final model | `bayesplot::ppc_stat_grouped()` with `group = interaction(region, [covariate])`; the reliability diagram in `bayes-workflow-r/reference/predictive-checks.md` |
+| Undetermined rather than null | Reporting the posterior | `bayes-workflow-r/reference/sensitivity.md`, the weak-likelihood reading |
 
 ```markdown
-| Sentence                                          | Stage it reports          | Evidence behind it                                        |
-|---------------------------------------------------|---------------------------|-----------------------------------------------------------|
-| Predicted probabilities, averaged within draws     | Estimand                  | `bayes-estimands-r`, `marginaleffects::avg_predictions()` |
-| Insensitive to prior, sensitive to likelihood      | Sensitivity of the estimand | `bw_sensitivity(fit, newdata = ...)`                    |
-| Partial pooling, with the two smallest regions     | Fit and its structure     | `ranef()`, raw against fitted proportions                 |
-| No visible discrepancy, and what the check cannot see | Predictive checks       | `pp_check(type = "stat_grouped")`, `loo_pit_ecdf`         |
-| Undetermined rather than null                      | Reporting the posterior   | `reference/sensitivity.md`, the weak-likelihood reading   |
-| Two things the analysis cannot check               | Limits beside the claim   | the workflow log                                          |
+| Sentence                                                                                | Stage it reports                     | Evidence behind it                                                                                                                                            |
+|-----------------------------------------------------------------------------------------|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Predicted probabilities, averaged within draws                                          | Estimand                             | `bayes-estimands-r`, `marginaleffects::avg_predictions()`                                                                                                     |
+| What the survey does not record, and the unmodelled design                              | Limits beside the claim              | the workflow log                                                                                                                                              |
+| Insensitive to prior, sensitive to likelihood                                           | Sensitivity of the estimand          | `bw_sensitivity(fit, newdata = ...)`                                                                                                                          |
+| Partial pooling, with the two smallest regions                                          | Fit and its structure                | `ranef()`, raw against fitted proportions                                                                                                                     |
+| Checks on a statistic that the intercepts do not fit, and what the checks cannot detect | Predictive checks of the final model | `bayesplot::ppc_stat_grouped()` with `group = interaction(region, [covariate])`; the reliability diagram in `bayes-workflow-r/reference/predictive-checks.md` |
+| Undetermined rather than null                                                           | Reporting the posterior              | `bayes-workflow-r/reference/sensitivity.md`, the weak-likelihood reading                                                                                      |
 
 : Template A, sentence by stage.
 ```
 
-The first sentence is the whole result, on the probability scale, before any diagnostic is
-mentioned. The pooling sentence names the two regions the reader would otherwise suspect,
-because a reviewer's first question about a multilevel model is what it did to the small
-groups. The predictive-check sentence says what the check saw and, in the same sentence, what
-it could not, which is how the case studies read every passed check.
+The first sentence is the whole result, on the probability scale, before any diagnostic is mentioned, and the limits that qualify it follow at once rather than at the end. The pooling sentence names the two regions that the reader would otherwise suspect, because the first question that a reviewer asks about a multilevel model is what it did to the small groups. The predictive checks are chosen so that each of them could fail. A check on the region rates themselves is close to certain to pass, since each region has its own intercept, and for a binary outcome a reliability diagram reads calibration more directly than a plot of leave-one-out probability integral transforms, whose values for a binary outcome are not uniform even under a correct model. Where the claim concerns regions outside the sample, add a cross-validation that leaves out whole regions (`loo::kfold_split_grouped()`, in `bayes-workflow-r/reference/comparison.md`). Where a refit under a visibly different prior was run, its estimate joins the sensitivity sentence.
 
 ---
 
 ## Template B: small sample, repeated measures
 
-> Over the [k] days of [treatment or exposure], [outcome] rose by [slope] [units] per day on
-> average, with a 95% interval of [lower, upper] (Figure [n]), and the rate differed
-> between participants far more than that interval suggests: the between-participant
-> standard deviation of the slope is [sd] [units] per day, so a participant one standard
-> deviation above the mean rate deteriorates at roughly [slope + sd] per day and one below at
-> roughly [slope − sd]. Both quantities come from the model with a participant-level slope;
-> the model with only a participant-level intercept gives the same average with an interval
-> [x]% as wide, which understates the uncertainty because it treats every participant as
-> sharing one rate. A leave-one-out predictive check on the gaussian version showed [m]
-> observations, all from [participants], falling outside their predictive intervals, which
-> the Student-t version accommodates: cross-validation prefers it by [elpd_diff] in
-> expected log predictive density (standard error [se_diff]), the Pareto k diagnostics are
-> acceptable for both after refitting the [m] flagged folds, and the interval for the average
-> slope widens from [w1] to [w2] under the heavier tail, which is the estimate we report.
-> The reported slope moves by less than [x] [units] per day when the prior on it is
-> power-scaled by a factor of two in either direction. With [n] participants the design
-> recovers a between-participant standard deviation of the size estimated in [x]% of simulated
-> replications and overstates it by a factor of [f] when it does, so the spread is the less
-> secure of the two findings and we say so. The study does not record [what is missing], and
-> the [k]-day window cannot separate a linear decline from one that levels off after day
-> [d]; nothing here bears on either.
+> Over the [n_days] days of [treatment or exposure], [outcome] rose by [slope] [units] per day on average, with a central [width]% interval of [slope_low] to [slope_high] (Figure [n]), and participants differed widely in their rate: the between-participant standard deviation of the slope is [sd_slope] [units] per day, so for a participant one standard deviation above the average rate [outcome] rises by roughly [slope_plus_sd] [units] per day, and for one below it by roughly [slope_minus_sd]. The study does not record [what is missing], and the [n_days]-day window cannot separate a linear rise from one that levels off after day [day_level]; nothing in these data bears on either, and both qualify the average rate. The two quantities come from the Student-t model with a participant-level slope, described in the methods. The average slope is insensitive to power-scaling of the prior and sensitive to power-scaling of the likelihood (prior sensitivity [psens_slope], likelihood sensitivity [lsens_slope]), so the data rather than the prior determine it. The leave-one-out probability integral transform of the Student-t model, which places each observation within the predictive distribution fitted without it, shows no visible departure from uniformity, so the predictive intervals are neither systematically too narrow nor too wide. That check says nothing about the shape of the rise over time. The design calibration grades the two findings. For the average slope, the [width]% interval excludes zero in [excl_slope]% of the simulated replications described in the methods, covers the assumed slope in [cov_slope]% and has the wrong sign in [sign_slope]%, and in the replications whose interval excludes zero the size of the estimate averages [exag_slope] times the assumed value. For the between-participant standard deviation, the interval covers the assumed value in [cov_sd]% of replications against a nominal [width]%, and the posterior median averages [ratio_sd] times that value, so the estimated spread is likely to overstate the true one and is the less secure of the two findings, and we say so.
 
 | Sentence | Stage it reports | Evidence behind it |
 |---|---|---|
 | Average slope and its interval, on the outcome scale | Estimand | `fixef()`, or `posterior_epred()` by day |
-| Between-participant spread, translated into rates | Estimand, second quantity | `VarCorr()`, the `sd_` posterior |
-| The intercept-only model and its narrower interval | Comparison judged on the estimand | `reference/comparison.md` |
-| LOO check, outliers, Student-t, Pareto k after reloo | Predictive checks and comparison | `pp_check(type = "loo_intervals")`, `bw_loo_report()` |
-| Moves by less than [x] under power-scaling | Sensitivity of the estimand | `bw_sensitivity(fit, newdata = ...)` |
-| Recovery rate and inflation at n | Design calibration | `bw_recovery()` |
+| Between-participant spread, translated into rates | Estimand, second quantity | `VarCorr()`, the `sd_` posterior; the two rates computed within draws and saved to the output |
 | What is missing, and what the window cannot separate | Limits beside the claim | the workflow log |
+| Insensitive to prior, sensitive to likelihood | Sensitivity of the estimand | `bw_sensitivity(fit)`, the row for the slope |
+| LOO-PIT of the final model | Predictive check of the final model | `pp_check(fit, type = "loo_pit_overlay")` |
+| Calibration of the slope and of the spread | Design calibration | `bw_recovery(width = [width])`, once for the slope and once with `parameter = "sd_[participant]__[slope]"` |
 
 ```markdown
-| Sentence                                              | Stage it reports                    | Evidence behind it                                     |
-|-------------------------------------------------------|-------------------------------------|--------------------------------------------------------|
-| Average slope and its interval, on the outcome scale   | Estimand                            | `fixef()`, or `posterior_epred()` by day               |
-| Between-participant spread, translated into rates      | Estimand, second quantity           | `VarCorr()`, the `sd_` posterior                       |
-| The intercept-only model and its narrower interval     | Comparison judged on the estimand   | `reference/comparison.md`                              |
-| LOO check, outliers, Student-t, Pareto k after reloo   | Predictive checks and comparison    | `pp_check(type = "loo_intervals")`, `bw_loo_report()`  |
-| Moves by less than [x] under power-scaling             | Sensitivity of the estimand         | `bw_sensitivity(fit, newdata = ...)`                   |
-| Recovery rate and inflation at n                       | Design calibration                  | `bw_recovery()`                                        |
-| What is missing, and what the window cannot separate   | Limits beside the claim             | the workflow log                                       |
+| Sentence                                             | Stage it reports                    | Evidence behind it                                                                                         |
+|------------------------------------------------------|-------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Average slope and its interval, on the outcome scale | Estimand                            | `fixef()`, or `posterior_epred()` by day                                                                   |
+| Between-participant spread, translated into rates    | Estimand, second quantity           | `VarCorr()`, the `sd_` posterior; the two rates computed within draws and saved to the output              |
+| What is missing, and what the window cannot separate | Limits beside the claim             | the workflow log                                                                                           |
+| Insensitive to prior, sensitive to likelihood        | Sensitivity of the estimand         | `bw_sensitivity(fit)`, the row for the slope                                                               |
+| LOO-PIT of the final model                           | Predictive check of the final model | `pp_check(fit, type = "loo_pit_overlay")`                                                                  |
+| Calibration of the slope and of the spread           | Design calibration                  | `bw_recovery(width = [width])`, once for the slope and once with `parameter = "sd_[participant]__[slope]"` |
 
 : Template B, sentence by stage.
 ```
 
-Two quantities, both on the outcome scale, and the second is translated into what it means for
-a participant one standard deviation from the mean, because a standard deviation of a slope is
-not a number a reader can picture. The model comparison is reported through its effect on the
-estimate – the interval widens – rather than as a verdict about the models. The calibration
-sentence grades the two findings against each other and says which is less secure.
+Two quantities, both on the outcome scale, and the second is translated into what it means for a participant one standard deviation from the average, because a standard deviation of a slope is not a number that a reader can picture. The translated rates are derived numbers. Compute each rate within the posterior draws where the draws are available, and save it to the output before quoting it. The sensitivity sentence gives both readings of the diagnostic printed by `bw_sensitivity()`. A movement of the slope in [units] per day may be added from a refit under a visibly different prior, or from `priorsense::powerscale_sequence()`, reported with its Pareto k values, which show whether the reweighting at each power can be trusted; `powerscale_plot_quantities()` marks the powers at which the Pareto k exceeds its threshold. For the standard deviation the calibration sentence reports only coverage and the ratio of the posterior median to the assumed value. `bw_recovery()` counts a run as a recovery when its interval excludes zero, which every interval for a standard deviation does, and the ratio is the figure printed on its exaggeration line, where every run counts as a detection. The calibration sentence grades the two findings against each other and says which is less secure.
 
 ---
 
 ## Template C: overdispersed counts
 
-> Under [treatment], the expected number of [events] per [unit-period] falls to [ratio] of its
-> untreated level, with a 95% interval of [lower, upper], averaged over the observed
-> distribution of [covariates] within each draw (Figure [n]). That average conceals the
-> finding that matters for anyone deciding whether to [act]: the proportional reduction is
-> [r_low] [interval] among [units] with the lowest [baseline] and [r_high] [interval] among
-> those with the highest, where the interval spans one, so the treatment does most where there
-> was least to begin with (Figure [n+1]). The model is a negative binomial with the treatment
-> effect allowed to vary with [baseline]. The constant-effect negative binomial reproduces the
-> marginal shape of the outcome and every conventional check on it, and misses the contrast
-> the analysis is for: it puts the untreated arm's expected count at [fitted] against an
-> observed [observed], and the interaction model at [fitted2]. The Poisson we began from
-> under-predicted the dispersion and the frequency of high counts, and cross-validation put its
-> effective number of parameters at [p_loo] against [k] actual ones, which reads as
-> misspecification rather than flexibility. Cross-validation prefers the interaction model to
-> the constant-effect one by [elpd_diff] in expected log predictive density (standard error
-> [se_diff]); the pointwise differences are heavy-tailed and dropping the three most
-> influential [units] moves the implied probability from [p1] to [p2], so we report the
-> difference and its standard error and do not report the probability. Four models that
-> cross-validation cannot separate give ratios between [r_min] and [r_max], and that range,
-> rather than any one interval, is the uncertainty a reader should carry. The data carry no
-> [cluster identifier], so [units] in the same [cluster] are treated as independent and the
-> intervals are narrower than they should be; nothing in the file lets that be checked.
+> Under [treatment], the expected number of [events] per [unit-period] in a [unit] falls to [ratio] of its untreated level on average across [units], with a central [width]% interval of [ratio_low] to [ratio_high] (Figure [n]). This is the average of the [unit]-level ratios, taken within each posterior draw over the observed distribution of [covariates]. That average conceals the finding that matters for anyone deciding whether to [act]. The ratio is [ratio_q_low] ([interval_q_low]) among [units] with the lowest [baseline] and [ratio_q_high] ([interval_q_high]) among those with the highest, where the interval spans one, the value at which the treatment changes nothing, so the treatment does most where there was least to begin with (Figure [n+1]). The data carry no [cluster identifier], so [units] in the same [cluster] are treated as independent and the intervals are likely to be narrower than they should be; nothing in the file lets that be checked. On the summary that the constant-effect model failed, the expected count in the untreated arm, the interaction model gives [fitted_int] against the observed mean given in the methods. Under the [n_models] specifications that cross-validation cannot separate from the interaction model, the point estimates of the ratio run from [ratio_min] to [ratio_max], with the interval under each in Table [n]. That spread is the sensitivity of the estimate to the choice of model, and the spread adds to the uncertainty within each model rather than replacing it.
 
 | Sentence | Stage it reports | Evidence behind it |
 |---|---|---|
-| The ratio, averaged within draws | Estimand | `bayes-estimands-r/reference/contrasts.md`, `posterior_epred()` under both assignments |
+| The ratio, with its estimand named | Estimand | `bayes-estimands-r/reference/contrasts.md`; `avg_comparisons(fit, variables = "[treatment]", comparison = function(hi, lo) mean(hi / lo))` for the average of the ratios |
 | Heterogeneity by baseline, with the interval spanning one | Estimand by subgroup | `posterior_epred()` by quintile of baseline |
-| The constant-effect model misses the contrast | Predictive check on the estimand's own summary | `pp_check(type = "stat_grouped", stat = "mean", group = treatment)` |
-| Poisson, p_loo against the parameter count | Model expansion, diagnosed | `bw_loo_report()`, effective parameters |
-| elpd_diff, heavy tails, probability withdrawn | Comparison | `bw_loo_report()`, the leave-out probability check |
-| The range across indistinguishable models | Sensitivity to model choice | `reference/comparison.md` |
 | No cluster identifier | Limits beside the claim | the workflow log |
+| The interaction model on the arm mean | Predictive check of the final model, on the summary of the estimand | `pp_check(type = "stat_grouped", stat = "mean", group = "[treatment]")` |
+| Estimates under the specifications that cannot be separated | Sensitivity to the choice of model | `bayes-workflow-r/reference/comparison.md`; stacking weights from `loo::loo_model_weights()` |
 
 ```markdown
-| Sentence                                              | Stage it reports                              | Evidence behind it                                                    |
-|-------------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------|
-| The ratio, averaged within draws                       | Estimand                                      | `bayes-estimands-r/reference/contrasts.md`, `posterior_epred()`       |
-| Heterogeneity by baseline, interval spanning one       | Estimand by subgroup                          | `posterior_epred()` by quintile of baseline                           |
-| The constant-effect model misses the contrast          | Predictive check on the estimand's own summary | `pp_check(type = "stat_grouped", stat = "mean", group = treatment)`  |
-| Poisson, p_loo against the parameter count             | Model expansion, diagnosed                    | `bw_loo_report()`, effective parameters                               |
-| elpd_diff, heavy tails, probability withdrawn          | Comparison                                    | `bw_loo_report()`, the leave-out probability check                    |
-| The range across indistinguishable models              | Sensitivity to model choice                   | `reference/comparison.md`                                             |
-| No cluster identifier                                  | Limits beside the claim                       | the workflow log                                                      |
+| Sentence                                                    | Stage it reports                                                    | Evidence behind it                                                                                                                                                       |
+|-------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| The ratio, with its estimand named                          | Estimand                                                            | `bayes-estimands-r/reference/contrasts.md`; `avg_comparisons(fit, variables = "[treatment]", comparison = function(hi, lo) mean(hi / lo))` for the average of the ratios |
+| Heterogeneity by baseline, with the interval spanning one   | Estimand by subgroup                                                | `posterior_epred()` by quintile of baseline                                                                                                                              |
+| No cluster identifier                                       | Limits beside the claim                                             | the workflow log                                                                                                                                                         |
+| The interaction model on the arm mean                       | Predictive check of the final model, on the summary of the estimand | `pp_check(type = "stat_grouped", stat = "mean", group = "[treatment]")`                                                                                                  |
+| Estimates under the specifications that cannot be separated | Sensitivity to the choice of model                                  | `bayes-workflow-r/reference/comparison.md`; stacking weights from `loo::loo_model_weights()`                                                                             |
 
 : Template C, sentence by stage.
 ```
 
-The second sentence is the one a reader of this template is most likely to delete, and it is
-the one the case studies would keep: an average that conceals a gradient is reported with the
-gradient. The comparison sentence performs the register's characteristic withdrawal – a
-probability is computed, its sensitivity to three observations is measured, and it is then not
-reported – and the sentence after it treats the spread across models as the uncertainty rather
-than choosing one.
+The second sentence names the estimand, because the two ratios that a reader could take from the first differ whenever the effect varies with [baseline]: the average of the [unit]-level ratios weights every [unit] equally, while the ratio of the average expected counts is dominated by the [units] with the highest counts. Where the paper reports the ratio of the averages instead, the first sentence says that the expected count across all [units] falls to [ratio] of its untreated level, and in marginaleffects 0.32.0 `avg_comparisons()` with `comparison = "ratio"` computes that ratio. The gradient sentence is the one that a reader of this template is most likely to delete, and it is the one that the case studies would keep: an average that conceals a gradient is reported with the gradient. The comparison that chose the interaction model, with its withdrawn probability, is in the matching methods section. The last sentence reports the spread across the specifications that cannot be separated as one more source of uncertainty, beside the intervals, rather than choosing one specification.
 
 ---
 
 ## Adapting a template
 
-Change brackets, not sentences, until a sentence is false for your analysis; then replace it
-with one that is true at the same level of specificity. The sentences that carry the register
-and should survive any adaptation are the first, which states the quantity before any
-diagnostic; the one that reads a passed check as what it could and could not see; the one that
-joins a failure to the model that replaced it; and the last, which puts the limit beside the
-claim. A results section that has lost all four has left the register whatever else it keeps.
+Change brackets, not sentences, until a sentence is false for your analysis, and then replace it with one that is true at the same level of specificity. The sentences that carry the register and should survive any adaptation are the first, which states the quantity before any diagnostic; the one that reads a passed check of the final model as what it could and could not detect; the one that grades a claim by the design calibration, where one was run; and every sentence that puts a limit beside the claim that it qualifies. A results section that has lost all of these sentences has left the register whatever else it keeps. A stage that was not run is stated as not run, in one clause, with the reason where the log gives one, and a bracket is filled only from the log or the saved output.
 
-Numbers in these templates are slots because the register puts them in tables and figures and
-lets the sentence carry the reading. Where a number does belong in the prose – the quantity
-the paper is about, a ratio a reader can picture – give it at a precision the posterior
-supports, which for most social-science estimands is two significant figures, and give a
-posterior probability as a rounded bound rather than to three decimals. `scripts/br_check_numbers.R`
-will then confirm that each one traces to the output behind it.
+Numbers in these templates are slots because the register puts them in tables and figures and lets the sentence carry the reading. Where a number does belong in the prose – the quantity that the paper is about, a ratio that a reader can picture – give it at a precision that the posterior supports, which for most social-science estimands is two significant figures, and give a posterior probability as a rounded bound rather than to three decimals. A number that the prose derives, such as a percentage-point difference or a rate one standard deviation from the average, is saved to the output before it is quoted, so that `scripts/br_check_numbers.R` can trace it. The rules by which the check matches a rounded number are under "Checking the draft against the output" in SKILL.md.

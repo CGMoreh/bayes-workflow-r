@@ -73,6 +73,8 @@ make the choice silently. Odds ratios – `exp()` of the link-scale contrast –
 coefficients give you, but risk differences and risk ratios are what readers can evaluate,
 and with a fitted model there is no reason to settle for the odds ratio.
 
+An average ratio is itself two different estimands. `avg_comparisons(comparison = "ratio")` returns the ratio of the averages: the expected outcome averaged over the units under one assignment, divided by the same average under the other. The average of the ratios computed unit by unit, `comparison = function(hi, lo) mean(hi / lo)`, gives every unit equal weight, whereas the ratio of the averages is dominated by the units with the largest expected outcomes. Where the effect varies with the baseline level, as it often does for counts, the two can differ widely, so the write-up names the one that it reports.
+
 ## 4. Effects within subgroups, and differences between them
 
 ```r

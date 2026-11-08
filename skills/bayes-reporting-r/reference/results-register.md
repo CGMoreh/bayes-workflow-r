@@ -38,7 +38,7 @@ Refusal counts per case study run from zero (movies, multiple choice) to 40 (bir
 
 Withdrawing a diagnostic just reported: roaches retracts p_worse in the paragraph that introduced it; golf offers "hinting that likelihood would be weakly informative on these" (golf) and corrects it by the bivariate plot; park rule states "There is no indication of funnel." (park rule) and overturns it because the wrong parameter was plotted.
 
-Naming what a check cannot see: "the same ESS doesn't lead to the same MCSE" (digits); "LOO-PIT can't see discrepancy from the data" (roaches) with finite data.
+Naming what a check cannot detect: "the same ESS doesn't lead to the same MCSE" (digits); "LOO-PIT can't see discrepancy from the data" (roaches) with finite data.
 
 Disclaiming substance: "no really practical use for the result" (birthdays); "Actually we'd want data from the Census." (coronavirus); "the data at hand do not identify the parameters" (declining exponentials).
 
@@ -85,12 +85,14 @@ Defined once, with the gloss the corpus supplies:
 - Monte Carlo standard error: the variation that would appear if the estimation were repeated (digits); it decides how many digits to report.
 - Divergences, treedepth, funnel, centred and non-centred parameterisation: sampler geometry for an appendix; Results say only that the sampler had trouble and the model was reparameterised (park rule).
 - elpd and LOO: out-of-sample predictive accuracy from leaving each observation out in turn; the difference between models is stated with its standard error (LOO comparison).
-- Pareto k, p_loo, moment matching, reloo, K-fold: k checks the reliability of the leave-one-out approximation and p_loo flags a model too flexible for it (roaches); remedies belong in Methods.
+- Pareto k, p_loo, moment matching, reloo, K-fold: k checks the reliability of the leave-one-out approximation for each observation (roaches). p_loo, the effective number of parameters, indicates misspecification when it lies far above the number of parameters that the model actually has, and a model too flexible for the approximation when it exceeds roughly a fifth of the observations (roaches; `bayes-workflow-r/reference/comparison.md`). Remedies belong in Methods.
 - Calibration in the predictive sense, LOO-PIT, reliability diagram, rootogram: whether observed values fall where the predictive distributions of the model say they should (roaches); the verdict is intervals too narrow or too wide (sleep study, nabiximols).
 - Power-scaling: whether the result moves when the prior is strengthened or weakened, and whether the data or the prior is doing the work (dogs, roaches).
 - Simulation-based calibration: recovery of known parameters from simulated data, a check on the implementation (SBC).
 
 Translate the moves rather than the words. The perceptual pass verdict becomes: state the check, say what a failure would have looked like, say that it did not appear, with the scope golf attaches. The withdrawal move becomes one sentence carrying the reason (LOO comparison, roaches). The refusal to rank becomes a statement that two models cannot be distinguished at this sample size and that the estimate is the same under both (LOO comparison). The provisional marker of birthdays has no place in a paper; what survives is the rule of nabiximols that the effect was examined "only after we trusted that there is no" (nabiximols) misfit.
+
+In an article the moves fall into two sections, by the rule under "Article sections" in SKILL.md. The narration of the model sequence – a failure that names the next model, a losing model dropped with its reason, a comparison and its withdrawal – sits in the methods, and the reading of the checks of the final model, with the limits beside the claims, sits in the results.
 
 ## Provenance
 

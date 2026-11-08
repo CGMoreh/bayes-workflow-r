@@ -86,5 +86,13 @@
   {
     "query": "Turn my analyst's client-style report into Data and Analysis and Results sections for a sociology journal.",
     "should_trigger": true
+  },
+  {
+    "query": "The Bayesian analysis is finished: the brms fits, the saved output and the analysis log are all in the project. Write it up as the Data and Analysis and Results sections of the paper.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write up my difference-in-differences regression as the methods and results sections of the paper. The fixest output is in output/.",
+    "should_trigger": false
   }
 ]

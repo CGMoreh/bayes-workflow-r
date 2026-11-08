@@ -28,11 +28,12 @@ differ chiefly in how they handle unusual apartments; the interaction *appears* 
 baseline infestation rises. Language models tend to invert this, asserting interpretations and
 hedging facts, and the inversion reads as a machine to anyone who has seen enough of it.
 
-A strong claim travels with the sentence that says what would overturn it. "The treatment
-reduces the expected count to about 40% of its untreated level" is followed, in the same
-paragraph, by what the analysis could not check: the absence of a building identifier, the
-unstated assignment mechanism, the four models that cross-validation cannot separate. The
-limitation belongs beside the claim, not in a separate section where it can be skipped.
+A strong claim travels with the sentence that says what would overturn it. "Averaged across
+apartments, the treatment reduces the expected count of an apartment to 41% of its untreated
+level" is followed, in the same paragraph, by what the analysis could not check: the absence of
+a building identifier, the unstated assignment mechanism, the four models that cross-validation
+cannot separate. The limitation belongs beside the claim, not in a separate section where it
+can be skipped.
 
 ## Salience is marked in a clause, never in a fronted adverb
 
@@ -75,9 +76,11 @@ page, spent where the contrast or the triad is the actual argument.
   subject; stop where the argument stops.
 - **Significance inflation.** Everything crucial, striking, powerful. Say what follows from the
   finding and let the reader judge its size.
-- **Performing headings.** A heading describes what the section contains or claims. It may take
-  a stance – "The effect depends on how infested the apartment was" is a claim – but it does not
-  stage a paradox, pose a teaser or reach for a metaphor.
+- **Performing headings.** A heading is a brief phrase naming the topic of the section, such as
+  "Heterogeneity by baseline infestation", and the finding goes in the paragraph beneath it. A
+  heading that states a claim ("The effect depends on how infested the apartment was"), stages
+  a paradox, poses a teaser or reaches for a metaphor performs the argument instead of pointing
+  to it. Subsections appear in the write-up only where the venue uses subsections.
 - **Forced metaphor.** Journeys, landscapes, tapestries, spines and hinges applied to an analysis.
   Say it literally. A term of art keeps its name: "garden of forking paths" is Gelman and Loken's
   own coinage and is used with attribution, as is any borrowed figure.
@@ -137,7 +140,7 @@ log, a response to reviewers, a changelog – where the history is the content.
 ## How these rules are checked
 
 `scripts/br_check_numbers.R` traces every number in a draft to the output behind it and lists
-the sentences that quantify without a number. For the prose rules above, sweep by shape rather
+every sentence that quantifies, with the numbers in it marked as matched or not. For the prose rules above, sweep by shape rather
 than by string: read each page asking whether the same rhetorical move recurs. A string search
 catches only the easy cases – "not just", "here's the", "in conclusion", the vocabulary list –
 and a draft that passes the grep can still be built entirely from the structures listed here.

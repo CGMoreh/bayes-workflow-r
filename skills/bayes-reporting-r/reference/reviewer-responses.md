@@ -9,6 +9,8 @@ The two Generate snippets below call scripts bundled with the sibling `bayes-wor
 skill; the README's install commands place the two side by side, but a reporting-only install
 needs that skill added (or the equivalent priorsense and simulation calls written inline).
 
+In both snippets `${CLAUDE_SKILL_DIR}` stands for the folder of this skill. R does not expand it, so replace it with the path of that folder before the call runs.
+
 The pattern throughout: produce evidence, then write one paragraph around the evidence.
 Arguing that the priors were reasonable is assertion; showing the posterior does not move
 when the priors are perturbed is measurement, and measurement ends the exchange.
@@ -48,21 +50,18 @@ per-row predicted values instead, pass real rows and one name per row.)
 If the diagnostic is clean, refit under one visibly different prior anyway – twice the
 scale, or a different family on the variance components – and tabulate the reported
 quantity under both. Reviewers trust a two-row table more than a diagnostic they have not
-met, and the two together are stronger than either.
+met, and the two together are stronger than either. The refit also covers what power-scaling
+cannot: the diagnostic changes the prior only slightly around its specified form, and it
+leaves an improper flat prior, the brms default for population-level coefficients, untouched,
+since a constant raised to any power stays constant.
 
 **Response memo.**
 
-> We agree the concern is warranted at this sample size, and we have addressed it by
-> measurement rather than assertion. Power-scaling sensitivity analysis (Kallioinen et al.
-> 2024) perturbs the prior and the likelihood and measures the movement in the posterior of
-> the reported quantity. The average marginal effect of [X] is insensitive to perturbation
-> of the prior and sensitive to perturbation of the likelihood, which is the signature of
-> an estimate driven by the data. Refitting under [alternative priors] moves the estimate
-> from [a] to [b], within [fraction] of its posterior interval. Revised section [S] now
-> reports both checks.
+> We agree the concern is warranted at this sample size, and we have addressed it by measurement rather than assertion. Power-scaling sensitivity analysis (Kallioinen et al. 2024) raises the prior, and separately the likelihood, to a power close to one and measures how far the posterior of the reported quantity moves. The average marginal effect of [X] is insensitive to power-scaling of the prior and sensitive to power-scaling of the likelihood, which is the pattern of an estimate driven by the data. Because that diagnostic examines only small changes around the priors we specified, we also refitted the model under [alternative priors], and the estimate moves from [a] to [b], within [fraction] of its posterior interval. Revised section [S] now reports both checks.
 
-**Manuscript change.** The sensitivity sentence moves into the main text at the point the
-estimate is first claimed; the two-prior table goes to the appendix with a pointer.
+**Manuscript change.** The sensitivity result goes into the results section, at the point where
+the estimate is first claimed, and the methods say that power-scaling and the refit were run
+and how; the two-prior table goes to the appendix with a pointer.
 
 **When the objection is right.** If the diagnostic flags a strong prior and weak
 likelihood, the reviewer has found something true, and the response is to reclassify the
@@ -79,27 +78,26 @@ cannot support costs one result; defending it costs the paper.
 
 ```r
 source("${CLAUDE_SKILL_DIR}/../bayes-workflow-r/scripts/bw_recovery.R")
-bw_recovery(fit, simulate_fn, truth = <literature effect>, parameter = "b_x", n_sims = 200)
+
+# assumed_effect comes from outside these data: a range of plausible values, run
+# once each, or the published estimate discounted for the selection that inflates
+# it. width is the interval width used throughout the paper.
+bw_recovery(fit, simulate_fn, truth = assumed_effect, parameter = "b_x",
+            n_sims = 200, width = 0.95)
 ```
 
-Four numbers come out – recovery rate, interval coverage, sign-error rate, exaggeration
-factor – and they replace the argument about whether the sample is "too small" with a
-statement of what this design can and cannot do.
+`bw_recovery()` prints the share of runs whose interval excludes zero, the coverage of the assumed value with its Monte Carlo standard error, the median bias, the sign-error rate and, among the runs whose interval excludes zero, the ratio of the size of the estimate to the assumed value. Together these figures replace the argument about whether the sample is 'too small' with a statement of what this design can and cannot do. The assumed effect is never the estimate from these data, because a noisy estimate used as the truth carries its own exaggeration into the calibration. For a standard deviation, which is positive in every draw, the share of runs whose interval excludes zero is always 100 per cent and the sign-error rate always zero, so report its coverage and the ratio of the posterior median to the assumed value.
 
 **Response memo.**
 
-> Rather than argue in general terms, we simulated the design at exactly our sample size
-> and structure, with a true effect of the size this literature reports, refitting [S]
-> times. The design recovers the effect in [x]% of runs, interval coverage is [y]% at a
-> nominal [width]%, the sign comes out wrong in [z]% of runs, and estimates that clear the
-> threshold overstate the truth by [m] on average. We have added these figures to the
-> methods and rewritten the discussion to claim direction more firmly than magnitude,
-> which is what the calibration supports.
+> Rather than argue in general terms, we simulated the design at exactly our sample size and structure, with a true effect of [assumed effect], [its source outside these data], refitting [S] times. The [width]% interval excludes zero in [x]% of runs and covers the true effect in [y]% of runs against a nominal [width]%, the sign comes out wrong in [z]% of runs, and in the runs whose interval excludes zero the estimate overstates the true effect by a factor of [m] on average. We have added these figures to the results, each beside the estimate that it qualifies, with the simulation described in the methods, and we have rewritten the discussion to claim direction more firmly than magnitude, which is what the calibration supports.
 
-**Manuscript change.** The four numbers enter the methods; the discussion's strength of
-claim is re-graded against them. If recovery is poor, the paper's contribution is
-re-framed around what survives – often the interval itself, as a constraint future work
-can build on, rather than the point estimate.
+**Manuscript change.** The rates from the calibration enter the results section, each beside
+the estimate that it qualifies, and the methods say how the simulation was run; the strength
+of claim in the discussion is re-graded against those rates. If the simulated intervals seldom
+exclude zero or seldom cover the true effect, the contribution of the paper is re-framed
+around what survives – often the interval itself, as a constraint that future work can build
+on, rather than the point estimate.
 
 ## 3. "Why is this Bayesian at all?"
 

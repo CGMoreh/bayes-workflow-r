@@ -4,7 +4,7 @@
 #             usefully, for the derived quantity the paper actually reports
 # Sourced by: bayes-workflow-r skill; call bw_sensitivity(fit, newdata = ...)
 # Author:     Chris Moreh
-# Last updated: 2026-08-27
+# Last updated: 2026-11-08
 ################################################################################
 
 # Marginal sensitivity is uninformative wherever parameters are correlated in the
@@ -110,9 +110,15 @@ bw_read_diagnosis <- function(ps) {
     cat("  -> the data barely inform these. A posterior centred near zero here is\n",
         "     undetermined rather than null, and the write-up should say so.\n", sep = "")
   }
+  # priorsense leaves the diagnosis empty whenever prior sensitivity is under its
+  # threshold, whatever the likelihood shows, so an empty diagnosis is no verdict
+  # on the likelihood
   if (!length(conflict) && !length(weak)) {
-    cat("\n  No sensitivity flags: the quantities checked are insensitive to reasonable\n",
-        "  perturbation of prior and likelihood.\n", sep = "")
+    cat("\n  No diagnosis flags: prior sensitivity is under the threshold for every quantity\n", # r-style: keep – a reporting script, the printed reading is its output
+        "  checked. The flags say nothing about the likelihood, so read its column: at or\n",
+        "  above the threshold, the data drive the estimate, which is the reading to report;\n",
+        "  under it, power-scaling moved neither, and a refit under a visibly different\n",
+        "  prior is the check to run.\n", sep = "")
   }
   invisible(NULL)
 }
