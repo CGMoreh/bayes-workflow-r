@@ -1,6 +1,6 @@
 {
   "name": "bayes-workflow-r",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bayesian analysis in R with brms and Stan, with its record and its write-up: a log of each model, check and decision, a workflow record generated from it, the methods and results sections of an article in one file, and every number in the draft checked against the saved output.",
   "author": {
     "name": "Chris Moreh"

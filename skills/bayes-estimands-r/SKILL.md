@@ -17,7 +17,7 @@ license: MIT
 compatibility: Requires R with brms, marginaleffects and a working Stan toolchain (cmdstanr recommended).
 metadata:
   author: Chris Moreh
-  version: "0.1.0"
+  version: "0.2.0"
   repository: https://github.com/CGMoreh/bayes-workflow-r
 ---
 

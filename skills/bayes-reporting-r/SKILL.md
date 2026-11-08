@@ -16,7 +16,7 @@ license: MIT
 compatibility: Designed for manuscripts written in Quarto, R Markdown or plain Markdown, with analyses fitted using brms.
 metadata:
   author: Chris Moreh
-  version: "0.1.0"
+  version: "0.2.0"
   repository: https://github.com/CGMoreh/bayes-workflow-r
 ---
 

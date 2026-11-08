@@ -18,7 +18,7 @@ compatibility: Requires R with brms and a working Stan toolchain (cmdstanr recom
   optional steps use loo, priorsense, projpred, bayesplot, posterior, tidybayes and marginaleffects.
 metadata:
   author: Chris Moreh
-  version: "0.1.0"
+  version: "0.2.0"
   repository: https://github.com/CGMoreh/bayes-workflow-r
 ---
 

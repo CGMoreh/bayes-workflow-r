@@ -10,8 +10,8 @@ authors:
     family-names: Moreh
 repository-code: "https://github.com/CGMoreh/bayes-workflow-r"
 license: MIT
-version: 0.1.0
-date-released: "2026-08-26"
+version: 0.2.0
+date-released: "2026-11-08"
 keywords:
   - bayesian-workflow
   - brms
